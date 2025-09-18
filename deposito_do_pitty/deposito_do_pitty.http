@@ -1,0 +1,6 @@
+@deposito_do_pitty_HostAddress = http://localhost:5167
+
+GET {{deposito_do_pitty_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
