@@ -46,7 +46,6 @@ namespace DepositoDoPitty.Infrastructure.Repositories
             }
         }
 
-        //Validação de Email
         public async Task<User?> GetByValidationEmailAsync(string email)
         {
             return await _context.Users

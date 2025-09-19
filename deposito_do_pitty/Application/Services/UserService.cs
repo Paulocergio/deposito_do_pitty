@@ -3,6 +3,7 @@ using DepositoDoPitty.Application.DTOs;
 using DepositoDoPitty.Application.Interfaces;
 using BCrypt.Net;
 using DepositoDoPitty.Domain.Interfaces;
+using deposito_do_pitty.Application.DTOs;
 namespace DepositoDoPitty.Application.Services
 {
     public class UserService : IUserService
@@ -79,5 +80,7 @@ namespace DepositoDoPitty.Application.Services
         {
             await _userRepository.DeactivateAsync(id);
         }
+
+
     }
 }

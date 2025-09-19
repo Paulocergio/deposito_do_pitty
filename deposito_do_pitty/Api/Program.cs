@@ -1,3 +1,5 @@
+using deposito_do_pitty.Application.Interfaces;
+using deposito_do_pitty.Application.Services;
 using deposito_do_pitty.Application.Validators;
 using DepositoDoPitty.Application.Interfaces;
 using DepositoDoPitty.Application.Services;
@@ -9,24 +11,25 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ?? Connection string
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-// ?? FluentValidation (versão 11+)
+
 builder.Services.AddValidatorsFromAssemblyContaining<UserDtoValidator>();
 
-// ?? Controllers
+
 builder.Services.AddControllers();
 
-// ?? DbContext
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// ?? Dependency Injection
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
-// ?? Swagger
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

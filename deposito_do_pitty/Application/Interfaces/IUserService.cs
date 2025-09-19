@@ -1,4 +1,5 @@
-﻿using DepositoDoPitty.Application.DTOs;
+﻿using deposito_do_pitty.Application.DTOs;
+using DepositoDoPitty.Application.DTOs;
 
 namespace DepositoDoPitty.Application.Interfaces
 {
@@ -9,5 +10,6 @@ namespace DepositoDoPitty.Application.Interfaces
         Task CreateAsync(UserDto dto);
         Task UpdateAsync(UserDto dto);
         Task DeactivateAsync(int id);
+     
     }
 }

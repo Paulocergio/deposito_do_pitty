@@ -14,18 +14,13 @@ namespace DepositoDoPitty.Infrastructure.Persistence
             modelBuilder.Entity<User>(entity =>
             {
                 entity.ToTable("users");
-
                 entity.HasKey(u => u.Id);
-
                 entity.Property(u => u.Id).HasColumnName("id");
                 entity.Property(u => u.Name).HasColumnName("name");
                 entity.Property(u => u.Email).HasColumnName("email");
                 entity.Property(u => u.PasswordHash).HasColumnName("password_hash");
                 entity.Property(u => u.Phone).HasColumnName("phone");
                 entity.Property(u => u.Role).HasColumnName("role").IsRequired();
-
-
-
                 entity.Property(u => u.IsActive).HasColumnName("is_active");
             });
 

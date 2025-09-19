@@ -1,6 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using DepositoDoPitty.Application.Interfaces;
+﻿using deposito_do_pitty.Application.DTOs;
+using deposito_do_pitty.Application.DTOs.Auth;
+using deposito_do_pitty.Application.Interfaces;
+using deposito_do_pitty.Application.Services;
 using DepositoDoPitty.Application.DTOs;
+using DepositoDoPitty.Application.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
 
 namespace DepositoDoPitty.Api.Controllers
 {
@@ -9,13 +14,15 @@ namespace DepositoDoPitty.Api.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IAuthService _authService;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService , IAuthService authService)
         {
             _userService = userService;
+            _authService = authService;
         }
 
-      
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -23,7 +30,7 @@ namespace DepositoDoPitty.Api.Controllers
             return Ok(users);
         }
 
-      
+
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -33,7 +40,7 @@ namespace DepositoDoPitty.Api.Controllers
 
             return Ok(user);
         }
-        
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] UserDto dto)
 
@@ -45,7 +52,7 @@ namespace DepositoDoPitty.Api.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                return Conflict(new { message = ex.Message }); 
+                return Conflict(new { message = ex.Message });
             }
         }
 
@@ -68,5 +75,17 @@ namespace DepositoDoPitty.Api.Controllers
             await _userService.DeactivateAsync(id);
             return NoContent();
         }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
+        {
+            var result = await _authService.AuthenticateAsync(request);
+
+            if (result == null)
+                return Unauthorized("Credenciais inválidas.");
+
+            return Ok(result);
+        }
+
     }
 }
