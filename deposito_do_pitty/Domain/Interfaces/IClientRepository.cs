@@ -6,5 +6,6 @@ namespace deposito_do_pitty.Domain.Interfaces
     {
         Task AddAsync(Client client);
         Task<Client?> GetByDocumentNumberAsync(string documentNumber);
+        Task<List<Client>> GetAllAsync();
     }
 }

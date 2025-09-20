@@ -1,6 +1,7 @@
 ﻿using deposito_do_pitty.Application.Interfaces;
 using deposito_do_pitty.Domain.Entities;
 using deposito_do_pitty.Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace deposito_do_pitty.Application.Services
 {
@@ -36,6 +37,11 @@ namespace deposito_do_pitty.Application.Services
             };
 
             await _clientRepository.AddAsync(newClient);
+        }
+
+        public async Task<List<Client>> GetAllAsync()
+        {
+            return await _clientRepository.GetAllAsync();
         }
     }
 }

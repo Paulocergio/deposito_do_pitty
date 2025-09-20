@@ -8,7 +8,7 @@ namespace deposito_do_pitty.Api
     [Route("api/[controller]")]
     public class ClientController : ControllerBase
     {
-        private readonly IClientService  _clientService;
+        private readonly IClientService _clientService;
 
         public ClientController(IClientService clientService)
         {
@@ -21,12 +21,31 @@ namespace deposito_do_pitty.Api
             try
             {
                 await _clientService.ClientCreateAsync(client);
-                return Ok(client); 
+                return Ok(client);
             }
             catch (InvalidOperationException ex)
             {
                 return Conflict(new { message = ex.Message });
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            try
+            {
+                var clients = await _clientService.GetAllAsync();
+
+                if (clients == null || !clients.Any())
+                    return NotFound(new { message = "Nenhum cliente encontrado." });
+
+                return Ok(clients);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Erro interno: {ex.Message}" });
+            }
+        }
     }
 }
+

@@ -20,6 +20,13 @@ namespace deposito_do_pitty.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<List<Client>> GetAllAsync()
+        {
+            //return await _context.Client.ToListAsync();
+            return await _context.Clients.ToListAsync();
+        
+        }
+
         public async Task<Client?> GetByDocumentNumberAsync(string documentNumber)
         {
           return await _context.Clients
