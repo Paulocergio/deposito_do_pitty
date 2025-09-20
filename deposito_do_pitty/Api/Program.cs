@@ -1,6 +1,8 @@
 using deposito_do_pitty.Application.Interfaces;
 using deposito_do_pitty.Application.Services;
 using deposito_do_pitty.Application.Validators;
+using deposito_do_pitty.Domain.Interfaces;
+using deposito_do_pitty.Infrastructure.Repositories;
 using DepositoDoPitty.Application.Interfaces;
 using DepositoDoPitty.Application.Services;
 using DepositoDoPitty.Domain.Interfaces;
@@ -26,6 +28,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IClientRepository, ClientRepository>();
+builder.Services.AddScoped<IClientService, ClientService>();
+
+
 
 
 builder.Services.AddEndpointsApiExplorer();
