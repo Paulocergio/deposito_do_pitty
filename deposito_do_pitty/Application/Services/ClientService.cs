@@ -1,47 +1,41 @@
 ﻿using deposito_do_pitty.Application.Interfaces;
 using deposito_do_pitty.Domain.Entities;
 using deposito_do_pitty.Domain.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace deposito_do_pitty.Application.Services
 {
     public class ClientService : IClientService
     {
-        private readonly IClientRepository _clientRepository;
+        private readonly IClientRepository _repository;
 
-        public ClientService(IClientRepository clientRepository)
+        public ClientService(IClientRepository repository)
         {
-            _clientRepository = clientRepository;
+            _repository = repository;
         }
 
         public async Task ClientCreateAsync(Client client)
         {
-            var existingDocument = await _clientRepository.GetByDocumentNumberAsync(client.DocumentNumber);
-            if (existingDocument != null)
-            {
-                throw new InvalidOperationException("CNPJ já cadastrado");
-            }
-
-            var newClient = new Client
-            {
-                DocumentNumber = client.DocumentNumber,
-                CompanyName = client.CompanyName,
-                Address = client.Address,
-                Phone = client.Phone,
-                Email = client.Email,
-                PostalCode = client.PostalCode,
-                ContactPerson = client.ContactPerson,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
-
-            await _clientRepository.AddAsync(newClient);
+            await _repository.AddAsync(client);
         }
 
         public async Task<List<Client>> GetAllAsync()
         {
-            return await _clientRepository.GetAllAsync();
+            return await _repository.GetAllAsync();
+        }
+
+        public async Task<Client?> GetByDocumentNumberAsync(string documentNumber)
+        {
+            return await _repository.GetByDocumentNumberAsync(documentNumber);
+        }
+
+        public async Task UpdateAsync(Client client)
+        {
+            await _repository.UpdateAsync(client);
+        }
+
+        public async Task DeleteAsync(string documentNumber)
+        {
+            await _repository.DeleteAsync(documentNumber);
         }
     }
 }

@@ -6,6 +6,8 @@ namespace deposito_do_pitty.Application.Interfaces
     {
         Task ClientCreateAsync(Client client);
         Task<List<Client>> GetAllAsync();
-
+        Task<Client?> GetByDocumentNumberAsync(string documentNumber);
+        Task UpdateAsync(Client client);
+        Task DeleteAsync(string documentNumber);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using deposito_do_pitty.Application.Interfaces;
 using deposito_do_pitty.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace deposito_do_pitty.Api
 {
@@ -46,6 +47,39 @@ namespace deposito_do_pitty.Api
                 return StatusCode(500, new { message = $"Erro interno: {ex.Message}" });
             }
         }
+
+        [HttpPut("{documentNumber}")]
+        public async Task<IActionResult> UpdateClient(string documentNumber, [FromBody] Client updatedClient)
+        {
+            if (documentNumber != updatedClient.DocumentNumber)
+                return BadRequest("Documento não confere.");
+
+            var client = await _clientService.GetByDocumentNumberAsync(documentNumber);
+
+            if (client == null)
+                return NotFound("Cliente não encontrado.");
+            updatedClient.UpdatedAt = DateTime.UtcNow;
+            await _clientService.UpdateAsync(updatedClient);
+
+            return Ok("Cliente atualizado com sucesso.");
+        }
+
+        [HttpDelete("{documentNumber}")]
+        public async Task<IActionResult> DeleteClient(string documentNumber)
+        {
+            var client = await _clientService.GetByDocumentNumberAsync(documentNumber);
+
+            if (client == null)
+                return NotFound("Cliente não encontrado.");
+
+            await _clientService.DeleteAsync(documentNumber);
+
+            return Ok("Cliente excluído com sucesso.");
+        }
+
+
+
+
     }
 }
 
