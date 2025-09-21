@@ -9,5 +9,7 @@ namespace deposito_do_pitty.Domain.Interfaces
         Task<Supplier?> GetByIdAsync(int id);
         Task UpdateAsync(Supplier supplier);
         Task DeleteAsync(int id);
+        Task<Supplier?> GetByDocumentNumberAsync(string documentNumber); 
+
     }
 }

@@ -41,15 +41,23 @@ namespace deposito_do_pitty.Api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(new { sucesso = false, mensagem = "Dados inválidos." });
 
-            await _supplierService.AddSupplierAsync(supplier);
-
-            return Ok(new
+            try
             {
-                sucesso = true,
-                mensagem = "Fornecedor criado com sucesso!",
-                dados = supplier
-            });
+                await _supplierService.AddSupplierAsync(supplier);
+
+                return Ok(new
+                {
+                    sucesso = true,
+                    mensagem = "Fornecedor criado com sucesso!",
+                    dados = supplier
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { sucesso = false, mensagem = ex.Message });
+            }
         }
+
 
         [HttpPut("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]

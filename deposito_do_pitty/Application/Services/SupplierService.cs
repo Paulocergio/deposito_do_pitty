@@ -16,11 +16,22 @@ namespace deposito_do_pitty.Application.Services
 
         public async Task AddSupplierAsync(Supplier supplier)
         {
+        
+            supplier.DocumentNumber = new string(supplier.DocumentNumber
+                .Where(char.IsDigit).ToArray());
+
+            var existing = await _supplierRepository.GetByDocumentNumberAsync(supplier.DocumentNumber);
+            if (existing != null)
+            {
+                throw new InvalidOperationException("Fornecedor já cadastrado com este CNPJ/CPF.");
+            }
+
             supplier.CreatedAt = DateTime.UtcNow;
             supplier.UpdatedAt = DateTime.UtcNow;
 
             await _supplierRepository.AddAsync(supplier);
         }
+
 
         public async Task<IEnumerable<Supplier>> GetAllAsync()
         {

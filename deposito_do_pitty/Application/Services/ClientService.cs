@@ -15,6 +15,12 @@ namespace deposito_do_pitty.Application.Services
 
         public async Task ClientCreateAsync(Client client)
         {
+            var existing = await _repository.GetByDocumentNumberAsync(client.DocumentNumber);
+            if (existing != null)
+            {
+                throw new InvalidOperationException("Cliente já está cadastrado.");
+            }
+
             await _repository.AddAsync(client);
         }
 

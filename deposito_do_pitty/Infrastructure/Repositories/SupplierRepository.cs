@@ -45,5 +45,12 @@ namespace deposito_do_pitty.Infrastructure.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<Supplier?> GetByDocumentNumberAsync(string documentNumber)
+        {
+            return await _context.Suppliers
+                .FirstOrDefaultAsync(s => s.DocumentNumber == documentNumber);
+        }
+
     }
 }

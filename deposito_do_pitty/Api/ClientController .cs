@@ -17,6 +17,7 @@ namespace deposito_do_pitty.Api
         }
 
         [HttpPost]
+        [HttpPost]
         public async Task<IActionResult> Create([FromBody] Client client)
         {
             try
@@ -26,9 +27,10 @@ namespace deposito_do_pitty.Api
             }
             catch (InvalidOperationException ex)
             {
-                return Conflict(new { message = ex.Message });
+                return Conflict(new { message = ex.Message }); 
             }
         }
+
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
