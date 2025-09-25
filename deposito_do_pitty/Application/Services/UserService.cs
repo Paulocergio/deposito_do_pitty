@@ -4,6 +4,7 @@ using DepositoDoPitty.Application.Interfaces;
 using BCrypt.Net;
 using DepositoDoPitty.Domain.Interfaces;
 using deposito_do_pitty.Application.DTOs;
+using Microsoft.AspNetCore.Identity;
 namespace DepositoDoPitty.Application.Services
 {
     public class UserService : IUserService
@@ -13,6 +14,7 @@ namespace DepositoDoPitty.Application.Services
         public UserService(IUserRepository userRepository)
         {
             _userRepository = userRepository;
+          
         }
 
         public async Task<IEnumerable<UserDto>> GetAllAsync()
@@ -24,24 +26,13 @@ namespace DepositoDoPitty.Application.Services
                 Name = u.Name,
                 Email = u.Email,
                 Phone = u.Phone,
-                Role = u.Role
+                Role = u.Role,
+                IsActive = u.IsActive 
             });
         }
 
-        public async Task<UserDto?> GetByIdAsync(int id)
-        {
-            var user = await _userRepository.GetByIdAsync(id);
-            if (user == null) return null;
 
-            return new UserDto
-            {
-                Id = user.Id,
-                Name = user.Name,
-                Email = user.Email,
-                Phone = user.Phone,
-                Role = user.Role
-            };
-        }
+        
 
         public async Task CreateAsync(UserDto dto)
         {
@@ -63,24 +54,38 @@ namespace DepositoDoPitty.Application.Services
             await _userRepository.AddAsync(user);
         }
 
-        public async Task UpdateAsync(UserDto dto)
+        public async Task UpdateAsync(UpdateUserDto dto)
         {
-            var user = new User
+            var existingUser = await _userRepository.GetByIdAsync(dto.Id);
+            if (existingUser == null)
+                throw new Exception("Usuário não encontrado");
+
+            existingUser.Name = dto.Name;
+            existingUser.Email = dto.Email;
+            existingUser.Phone = dto.Phone;
+            existingUser.Role = dto.Role;
+            existingUser.IsActive = dto.IsActive;
+            if (!string.IsNullOrWhiteSpace(dto.Password))
             {
-                Id = dto.Id,
-                Name = dto.Name,
-                Email = dto.Email,
-                Phone = dto.Phone,
-                Role = dto.Role
-            };
-            await _userRepository.UpdateAsync(user);
+                existingUser.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+
+            }
+
+            await _userRepository.UpdateAsync(existingUser);
         }
 
-        public async Task DeactivateAsync(int id)
+
+
+
+        public async Task DeleteAsync(int id)
         {
-            await _userRepository.DeactivateAsync(id);
+            await _userRepository.DeleteAsync(id);
         }
 
-
+        public async Task<User?> GetByIdAsync(int id)
+        {
+             return await _userRepository.GetByIdAsync(id);
+           
+        }
     }
 }

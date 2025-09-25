@@ -27,7 +27,7 @@ namespace deposito_do_pitty.Api
             }
             catch (InvalidOperationException ex)
             {
-                return Conflict(new { message = ex.Message }); 
+                return Conflict(new { message = ex.Message });
             }
         }
 
@@ -78,10 +78,6 @@ namespace deposito_do_pitty.Api
 
             return Ok("Cliente excluído com sucesso.");
         }
-
-
-
-
     }
 }
 

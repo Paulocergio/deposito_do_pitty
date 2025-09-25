@@ -22,7 +22,6 @@ namespace deposito_do_pitty.Application.Services
             _context = context;
             _config = config;
         }
-
         public async Task<LoginResponse?> AuthenticateAsync(LoginRequestDto request)
         {
             var user = await _context.Users
@@ -38,16 +37,16 @@ namespace deposito_do_pitty.Application.Services
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.Name),
-            new Claim(ClaimTypes.Email, user.Email),
-            
-        }),
+                        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                        new Claim(ClaimTypes.Name, user.Name),
+                        new Claim(ClaimTypes.Email, user.Email),
+
+                    }),
                 Expires = DateTime.UtcNow.AddHours(2),
                 SigningCredentials = new SigningCredentials(
-                    new SymmetricSecurityKey(key),
-                    SecurityAlgorithms.HmacSha256Signature
-                ),
+                        new SymmetricSecurityKey(key),
+                        SecurityAlgorithms.HmacSha256Signature
+                    ),
                 Audience = _config["Jwt:Audience"],
                 Issuer = _config["Jwt:Issuer"]
             };
@@ -60,11 +59,9 @@ namespace deposito_do_pitty.Application.Services
                 Token = tokenString,
                 Name = user.Name,
                 Email = user.Email,
-               
+
             };
         }
-
-
 
     }
 }

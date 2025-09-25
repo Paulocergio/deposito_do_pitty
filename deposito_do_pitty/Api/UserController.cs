@@ -5,6 +5,7 @@ using deposito_do_pitty.Application.Services;
 using DepositoDoPitty.Application.DTOs;
 using DepositoDoPitty.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace DepositoDoPitty.Api.Controllers
@@ -16,7 +17,7 @@ namespace DepositoDoPitty.Api.Controllers
         private readonly IUserService _userService;
         private readonly IAuthService _authService;
 
-        public UserController(IUserService userService , IAuthService authService)
+        public UserController(IUserService userService, IAuthService authService)
         {
             _userService = userService;
             _authService = authService;
@@ -31,24 +32,16 @@ namespace DepositoDoPitty.Api.Controllers
         }
 
 
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var user = await _userService.GetByIdAsync(id);
-            if (user == null)
-                return NotFound();
 
-            return Ok(user);
-        }
+
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] UserDto dto)
-
         {
             try
             {
                 await _userService.CreateAsync(dto);
-                return CreatedAtAction(nameof(GetById), new { id = dto.Id }, dto);
+                return Created(string.Empty, dto); 
             }
             catch (InvalidOperationException ex)
             {
@@ -58,23 +51,33 @@ namespace DepositoDoPitty.Api.Controllers
 
 
 
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UserDto dto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateUserDto dto)
         {
             if (id != dto.Id)
-                return BadRequest("ID mismatch");
+                return BadRequest(new { message = "ID do corpo difere do ID da URL." });
 
-            await _userService.UpdateAsync(dto);
-            return NoContent();
+            try
+            {
+                await _userService.UpdateAsync(dto);
+                return NoContent(); 
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
 
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Deactivate(int id)
+
+
+        [HttpDelete("hard/{id:int}")]
+        public async Task<IActionResult> Delete(int id)
         {
-            await _userService.DeactivateAsync(id);
+            await _userService.DeleteAsync(id);
             return NoContent();
         }
+
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto request)

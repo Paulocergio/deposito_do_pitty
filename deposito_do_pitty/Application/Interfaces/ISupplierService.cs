@@ -8,6 +8,6 @@ namespace deposito_do_pitty.Application.Interfaces
         Task<IEnumerable<Supplier>> GetAllAsync();
         Task<Supplier?> GetByIdAsync(int id);
         Task UpdateSupplierAsync(int id, Supplier supplier);
-        Task DeleteSupplierAsync(int id);
+        Task DeleteSupplierAsync(int id);        
     }
 }
