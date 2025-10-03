@@ -19,20 +19,28 @@ namespace deposito_do_pitty.Infrastructure.Repositories
             await _context.Clients.AddAsync(client);
             await _context.SaveChangesAsync();
         }
+
         public async Task<List<Client>> GetAllAsync()
         {
             return await _context.Clients.ToListAsync();
-
         }
+
+        public async Task<Client?> GetByIdAsync(int id)
+        {
+            return await _context.Clients
+                .FirstOrDefaultAsync(c => c.Id == id);
+        }
+
         public async Task<Client?> GetByDocumentNumberAsync(string documentNumber)
         {
             return await _context.Clients
                 .FirstOrDefaultAsync(c => c.DocumentNumber == documentNumber);
         }
+
         public async Task UpdateAsync(Client client)
         {
             var existing = await _context.Clients
-                .FirstOrDefaultAsync(c => c.DocumentNumber == client.DocumentNumber);
+                .FirstOrDefaultAsync(c => c.Id == client.Id);
 
             if (existing != null)
             {
@@ -42,10 +50,11 @@ namespace deposito_do_pitty.Infrastructure.Repositories
                 await _context.SaveChangesAsync();
             }
         }
-        public async Task DeleteAsync(string documentNumber)
+
+        public async Task DeleteAsync(int id)
         {
             var existing = await _context.Clients
-                .FirstOrDefaultAsync(c => c.DocumentNumber == documentNumber);
+                .FirstOrDefaultAsync(c => c.Id == id);
 
             if (existing != null)
             {
@@ -55,5 +64,3 @@ namespace deposito_do_pitty.Infrastructure.Repositories
         }
     }
 }
-
-

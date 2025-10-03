@@ -66,18 +66,21 @@ namespace deposito_do_pitty.Api
             return Ok("Cliente atualizado com sucesso.");
         }
 
-        [HttpDelete("{documentNumber}")]
-        public async Task<IActionResult> DeleteClient(string documentNumber)
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteClient(int id)
         {
-            var client = await _clientService.GetByDocumentNumberAsync(documentNumber);
+            var client = await _clientService.GetByIdAsync(id);
 
             if (client == null)
                 return NotFound("Cliente não encontrado.");
 
-            await _clientService.DeleteAsync(documentNumber);
+            await _clientService.DeleteAsync(id);
 
             return Ok("Cliente excluído com sucesso.");
         }
     }
+
 }
+
 

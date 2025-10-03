@@ -29,6 +29,11 @@ namespace deposito_do_pitty.Application.Services
             return await _repository.GetAllAsync();
         }
 
+        public async Task<Client?> GetByIdAsync(int id)
+        {
+            return await _repository.GetByIdAsync(id);
+        }
+
         public async Task<Client?> GetByDocumentNumberAsync(string documentNumber)
         {
             return await _repository.GetByDocumentNumberAsync(documentNumber);
@@ -39,9 +44,9 @@ namespace deposito_do_pitty.Application.Services
             await _repository.UpdateAsync(client);
         }
 
-        public async Task DeleteAsync(string documentNumber)
+        public async Task DeleteAsync(int id)
         {
-            await _repository.DeleteAsync(documentNumber);
+            await _repository.DeleteAsync(id);
         }
     }
 }

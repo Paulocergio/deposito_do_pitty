@@ -1,13 +1,11 @@
 ﻿using deposito_do_pitty.Domain.Entities;
 
-namespace deposito_do_pitty.Application.Interfaces
+public interface IClientService
 {
-    public interface IClientService
-    {
-        Task ClientCreateAsync(Client client);
-        Task<List<Client>> GetAllAsync();
-        Task<Client?> GetByDocumentNumberAsync(string documentNumber);
-        Task UpdateAsync(Client client);
-        Task DeleteAsync(string documentNumber);
-    }
+    Task ClientCreateAsync(Client client);             
+    Task<List<Client>> GetAllAsync();           
+    Task<Client?> GetByIdAsync(int id);            
+    Task<Client?> GetByDocumentNumberAsync(string documentNumber); 
+    Task UpdateAsync(Client client);               
+    Task DeleteAsync(int id);                      
 }
