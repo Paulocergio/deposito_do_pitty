@@ -14,6 +14,10 @@ namespace DepositoDoPitty.Infrastructure.Persistence
         public DbSet<Budget> Budgets { get; set; } = null!;
         public DbSet<BudgetItem> BudgetItems { get; set; } = null!;
         public DbSet<Product> Products { get; set; }
+
+        public DbSet<AccountsPayable> AccountsPayables { get; set; } = null!;
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>(entity =>
@@ -316,6 +320,36 @@ namespace DepositoDoPitty.Infrastructure.Persistence
                     );
 
                 entity.HasIndex(p => p.Barcode).IsUnique();
+            });
+
+            modelBuilder.Entity<AccountsPayable>(entity =>
+            {
+                entity.ToTable("AccountsPayable");
+                entity.HasKey(x => x.Id);
+
+                entity.Property(x => x.Supplier)
+                      .IsRequired()
+                      .HasMaxLength(255);
+
+                entity.Property(x => x.Description)
+                      .IsRequired()
+                      .HasMaxLength(255);
+
+                entity.Property(x => x.Amount)
+                      .HasPrecision(18, 2)
+                      .IsRequired();
+
+                entity.Property(x => x.DueDate).IsRequired();
+
+                entity.Property(x => x.Status)
+                      .HasDefaultValue(0)
+                      .IsRequired();
+
+                entity.Property(x => x.CreatedAt)
+                      .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                entity.Property(x => x.UpdatedAt)
+                      .HasDefaultValueSql("CURRENT_TIMESTAMP");
             });
 
         }
