@@ -15,7 +15,7 @@ namespace deposito_do_pitty.Api
             _clientService = clientService;
         }
 
-        [HttpPost] 
+        [HttpPost]
         public async Task<IActionResult> Create([FromBody] Client client)
         {
             try
@@ -29,11 +29,21 @@ namespace deposito_do_pitty.Api
             }
         }
 
+        [HttpPut("{documentNumber}")]
+        public async Task<IActionResult> UpdateClient(string documentNumber, [FromBody] Client updatedClient)
+        {
+            if (documentNumber != updatedClient.DocumentNumber) return BadRequest("Documento não confere.");
+            var client = await _clientService.GetByDocumentNumberAsync(documentNumber);
+            if (client == null) return NotFound("Cliente não encontrado.");
+            updatedClient.UpdatedAt = DateTime.UtcNow;
+            await _clientService.UpdateAsync(updatedClient);
+            return Ok("Cliente atualizado com sucesso.");
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var clients = await _clientService.GetAllAsync();
-          
             return Ok(clients);
         }
 
@@ -44,28 +54,11 @@ namespace deposito_do_pitty.Api
             return client is null ? NotFound() : Ok(client);
         }
 
-        [HttpPut("{documentNumber}")]
-        public async Task<IActionResult> UpdateClient(string documentNumber, [FromBody] Client updatedClient)
-        {
-            if (documentNumber != updatedClient.DocumentNumber)
-                return BadRequest("Documento não confere.");
-
-            var client = await _clientService.GetByDocumentNumberAsync(documentNumber);
-            if (client == null)
-                return NotFound("Cliente não encontrado.");
-
-            updatedClient.UpdatedAt = DateTime.UtcNow;
-            await _clientService.UpdateAsync(updatedClient);
-            return Ok("Cliente atualizado com sucesso.");
-        }
-
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteClient(int id)
         {
             var client = await _clientService.GetByIdAsync(id);
-            if (client == null)
-                return NotFound("Cliente não encontrado.");
-
+            if (client == null) return NotFound("Cliente não encontrado.");
             await _clientService.DeleteAsync(id);
             return NoContent();
         }

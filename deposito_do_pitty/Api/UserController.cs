@@ -1,14 +1,10 @@
 ﻿using deposito_do_pitty.Application.DTOs;
 using deposito_do_pitty.Application.DTOs.Auth;
 using deposito_do_pitty.Application.Interfaces;
-using deposito_do_pitty.Application.Services;
 using DepositoDoPitty.Application.DTOs;
 using DepositoDoPitty.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
-
 
 namespace DepositoDoPitty.Api.Controllers
 {
@@ -26,7 +22,6 @@ namespace DepositoDoPitty.Api.Controllers
             _authService = authService;
         }
 
-
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] UserDto dto)
         {
@@ -42,29 +37,14 @@ namespace DepositoDoPitty.Api.Controllers
             }
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var user = await _userService.GetByIdAsync(id);
-            return user is null ? NotFound() : Ok(user);
-        }
-
-
-
-
-
-
-
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateUserDto dto)
         {
-            if (id != dto.Id)
-                return BadRequest(new { message = "ID do corpo difere do ID da URL." });
-
+            if (id != dto.Id) return BadRequest(new { message = "ID do corpo difere do ID da URL." });
             try
             {
                 await _userService.UpdateAsync(dto);
-                return NoContent(); 
+                return NoContent();
             }
             catch (Exception ex)
             {
@@ -72,11 +52,17 @@ namespace DepositoDoPitty.Api.Controllers
             }
         }
 
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var user = await _userService.GetByIdAsync(id);
+            return user is null ? NotFound() : Ok(user);
+        }
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _userService.DeleteAsync(id); 
+            await _userService.DeleteAsync(id);
             return NoContent();
         }
 
@@ -84,15 +70,9 @@ namespace DepositoDoPitty.Api.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
         {
-            {
             var result = await _authService.AuthenticateAsync(request);
-
-            if (result == null)
-                return Unauthorized("Credenciais inválidas.");
-
+            if (result == null) return Unauthorized("Credenciais inválidas.");
             return Ok(result);
         }
-
     }
-}
 }

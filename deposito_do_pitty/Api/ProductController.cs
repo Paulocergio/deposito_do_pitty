@@ -15,17 +15,6 @@ namespace deposito_do_pitty.Api
             _service = service;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll() =>
-            Ok(await _service.GetAllAsync());
-
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var product = await _service.GetByIdAsync(id);
-            return product == null ? NotFound() : Ok(product);
-        }
-
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ProductDto dto)
         {
@@ -52,6 +41,20 @@ namespace deposito_do_pitty.Api
             {
                 return Conflict(new { message = ex.Message });
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var list = await _service.GetAllAsync();
+            return Ok(list);
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var product = await _service.GetByIdAsync(id);
+            return product is null ? NotFound() : Ok(product);
         }
 
         [HttpDelete("{id:int}")]

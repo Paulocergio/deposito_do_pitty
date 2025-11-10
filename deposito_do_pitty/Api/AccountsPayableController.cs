@@ -17,6 +17,20 @@ namespace deposito_do_pitty.Api
             _service = service;
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] AccountsPayableDto dto)
+        {
+            await _service.CreateAsync(dto);
+            return Ok();
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update(int id, [FromBody] AccountsPayableDto dto)
+        {
+            if (dto == null) return BadRequest("Dados inválidos.");
+            await _service.UpdateAsync(id, dto);
+            return Ok();
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
@@ -25,25 +39,15 @@ namespace deposito_do_pitty.Api
             return Ok(result);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] AccountsPayableDto dto)
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetById(int id)
         {
-            await _service.CreateAsync(dto);
-            return Ok();
+            var all = await _service.GetAllAsync();
+            var one = all.FirstOrDefault(x => x.Id == id);
+            return one is null ? NotFound() : Ok(one);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] AccountsPayableDto dto)
-        {
-            if (dto == null)
-                return BadRequest("Dados inválidos.");
-
-            await _service.UpdateAsync(id, dto); 
-            return Ok();
-        }
-
-
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             await _service.DeleteAsync(id);

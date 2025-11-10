@@ -17,21 +17,6 @@ namespace deposito_do_pitty.Api
             _service = service;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            var budgets = await _service.GetAllAsync();
-            return Ok(budgets);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var budget = await _service.GetByIdAsync(id);
-            if (budget == null) return NotFound();
-            return Ok(budget);
-        }
-
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Budget budget)
         {
@@ -39,14 +24,28 @@ namespace deposito_do_pitty.Api
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] Budget budget)
         {
             var updated = await _service.UpdateAsync(id, budget);
             return Ok(updated);
         }
 
-        [HttpDelete("{id}")]
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var budgets = await _service.GetAllAsync();
+            return Ok(budgets);
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var budget = await _service.GetByIdAsync(id);
+            return budget is null ? NotFound() : Ok(budget);
+        }
+
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _service.DeleteAsync(id);
@@ -54,12 +53,11 @@ namespace deposito_do_pitty.Api
             return NoContent();
         }
 
-        [HttpDelete("item/{itemId}")]
+        [HttpDelete("item/{itemId:int}")]
         public async Task<IActionResult> DeleteItem(int itemId)
         {
             await _service.DeleteItemAsync(itemId);
             return NoContent();
         }
-
     }
 }
