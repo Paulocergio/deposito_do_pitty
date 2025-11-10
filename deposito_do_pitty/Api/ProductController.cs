@@ -1,60 +1,64 @@
 ﻿using deposito_do_pitty.Application.DTOs;
+using deposito_do_pitty.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-[ApiController]
-[Route("api/[controller]")]
-public class ProductController : ControllerBase
+namespace deposito_do_pitty.Api
 {
-    private readonly IProductService _service;
-
-    public ProductController(IProductService service)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ProductController : ControllerBase
     {
-        _service = service;
-    }
+        private readonly IProductService _service;
 
-    [HttpGet]
-    public async Task<IActionResult> GetAll() =>
-        Ok(await _service.GetAllAsync());
-
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
-    {
-        var product = await _service.GetByIdAsync(id);
-        return product == null ? NotFound() : Ok(product);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Create(ProductDto dto)
-    {
-        try
+        public ProductController(IProductService service)
         {
-            var product = await _service.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+            _service = service;
         }
-        catch (Exception ex)
-        {
-            return Conflict(new { message = ex.Message });
-        }
-    }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, ProductDto dto)
-    {
-        try
+        [HttpGet]
+        public async Task<IActionResult> GetAll() =>
+            Ok(await _service.GetAllAsync());
+
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetById(int id)
         {
-            await _service.UpdateAsync(id, dto);
+            var product = await _service.GetByIdAsync(id);
+            return product == null ? NotFound() : Ok(product);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] ProductDto dto)
+        {
+            try
+            {
+                var product = await _service.CreateAsync(dto);
+                return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+            }
+            catch (Exception ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update(int id, [FromBody] ProductDto dto)
+        {
+            try
+            {
+                await _service.UpdateAsync(id, dto);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await _service.DeleteAsync(id);
             return NoContent();
         }
-        catch (Exception ex)
-        {
-            return Conflict(new { message = ex.Message });
-        }
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        await _service.DeleteAsync(id);
-        return NoContent();
     }
 }

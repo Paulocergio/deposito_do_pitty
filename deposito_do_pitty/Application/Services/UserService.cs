@@ -32,15 +32,14 @@ namespace DepositoDoPitty.Application.Services
         }
 
 
-        
 
-        public async Task CreateAsync(UserDto dto)
+
+        public async Task<int> CreateAsync(UserDto dto)
         {
             var existingEmail = await _userRepository.GetByValidationEmailAsync(dto.Email);
             if (existingEmail != null)
-            {
                 throw new InvalidOperationException("Email Ja Cadastrado");
-            }
+
             var user = new User
             {
                 Name = dto.Name,
@@ -52,7 +51,9 @@ namespace DepositoDoPitty.Application.Services
             };
 
             await _userRepository.AddAsync(user);
+            return user.Id; 
         }
+
 
         public async Task UpdateAsync(UpdateUserDto dto)
         {

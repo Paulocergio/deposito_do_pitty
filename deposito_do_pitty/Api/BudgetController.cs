@@ -1,11 +1,13 @@
 ﻿using deposito_do_pitty.Application.Interfaces;
 using deposito_do_pitty.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace deposito_do_pitty.Api
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class BudgetController : ControllerBase
     {
         private readonly IBudgetService _service;

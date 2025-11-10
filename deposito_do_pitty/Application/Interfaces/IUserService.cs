@@ -7,11 +7,10 @@ namespace DepositoDoPitty.Application.Interfaces
     public interface IUserService
     {
         Task<IEnumerable<UserDto>> GetAllAsync();
-     
-        Task CreateAsync(UserDto dto);
+        Task<int> CreateAsync(UserDto dto); 
         Task UpdateAsync(UpdateUserDto dto);
         Task<User?> GetByIdAsync(int id);
         Task DeleteAsync(int id);
-
     }
+
 }

@@ -53,9 +53,57 @@ namespace deposito_do_pitty.Infrastructure.Repositories
 
         public async Task UpdateAsync(Budget budget)
         {
-            _context.Budgets.Update(budget);
+            var existing = await _context.Budgets
+                .Include(b => b.Items)
+                .FirstOrDefaultAsync(b => b.Id == budget.Id);
+
+            if (existing == null)
+                throw new InvalidOperationException("Orçamento não encontrado.");
+
+            // Atualiza campos simples
+            existing.CustomerName = budget.CustomerName;
+            existing.Email = budget.Email;
+            existing.Phone = budget.Phone;
+            existing.Address = budget.Address;
+            existing.IssueDate = budget.IssueDate;
+            existing.DueDate = budget.DueDate;
+            existing.Discount = budget.Discount;
+            existing.Total = budget.Total;
+            existing.UpdatedAt = DateTime.UtcNow;
+
+            // Sincroniza itens: remove os que não existem mais, atualiza os existentes e adiciona novos
+            var incomingById = budget.Items.Where(i => i.Id != 0).ToDictionary(i => i.Id);
+            var toRemove = existing.Items.Where(ei => !incomingById.ContainsKey(ei.Id)).ToList();
+            if (toRemove.Any())
+                _context.BudgetItems.RemoveRange(toRemove);
+
+            foreach (var item in budget.Items)
+            {
+                if (item.Id == 0)
+                {
+                    // novo
+                    existing.Items.Add(new BudgetItem
+                    {
+                        Description = item.Description,
+                        Quantity = item.Quantity,
+                        UnitPrice = item.UnitPrice,
+                        Total = item.Total
+                    });
+                }
+                else
+                {
+                    // atualizar existente
+                    var tracked = existing.Items.First(ei => ei.Id == item.Id);
+                    tracked.Description = item.Description;
+                    tracked.Quantity = item.Quantity;
+                    tracked.UnitPrice = item.UnitPrice;
+                    tracked.Total = item.Total;
+                }
+            }
+
             await _context.SaveChangesAsync();
         }
+
 
         public async Task DeleteAsync(Budget budget)
         {

@@ -1,11 +1,13 @@
-﻿using deposito_do_pitty.Domain.Entities;
-using deposito_do_pitty.Application.Interfaces;
+﻿using deposito_do_pitty.Application.Interfaces;
+using deposito_do_pitty.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace deposito_do_pitty.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class SupplierController : ControllerBase
     {
         private readonly ISupplierService _supplierService;
@@ -16,15 +18,9 @@ namespace deposito_do_pitty.Api.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetAll()
         {
             var suppliers = await _supplierService.GetAllAsync();
-
-            if (!suppliers.Any())
-                return NotFound(new { sucesso = false, mensagem = "Nenhum fornecedor encontrado." });
-
             return Ok(new
             {
                 sucesso = true,
@@ -32,6 +28,7 @@ namespace deposito_do_pitty.Api.Controllers
                 dados = suppliers
             });
         }
+
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -45,7 +42,8 @@ namespace deposito_do_pitty.Api.Controllers
             {
                 await _supplierService.AddSupplierAsync(supplier);
 
-                return Ok(new
+                
+                return CreatedAtRoute("GetSupplierById", new { id = supplier.Id }, new
                 {
                     sucesso = true,
                     mensagem = "Fornecedor criado com sucesso!",
@@ -57,6 +55,7 @@ namespace deposito_do_pitty.Api.Controllers
                 return Conflict(new { sucesso = false, mensagem = ex.Message });
             }
         }
+
 
 
         [HttpPut("{id:int}")]

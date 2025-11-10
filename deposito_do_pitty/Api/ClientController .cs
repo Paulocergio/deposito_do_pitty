@@ -1,7 +1,6 @@
 ﻿using deposito_do_pitty.Application.Interfaces;
 using deposito_do_pitty.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace deposito_do_pitty.Api
 {
@@ -16,14 +15,13 @@ namespace deposito_do_pitty.Api
             _clientService = clientService;
         }
 
-        [HttpPost]
-        [HttpPost]
+        [HttpPost] 
         public async Task<IActionResult> Create([FromBody] Client client)
         {
             try
             {
                 await _clientService.ClientCreateAsync(client);
-                return Ok(client);
+                return CreatedAtAction(nameof(GetById), new { id = client.Id }, client);
             }
             catch (InvalidOperationException ex)
             {
@@ -31,23 +29,19 @@ namespace deposito_do_pitty.Api
             }
         }
 
-
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            try
-            {
-                var clients = await _clientService.GetAllAsync();
+            var clients = await _clientService.GetAllAsync();
+          
+            return Ok(clients);
+        }
 
-                if (clients == null || !clients.Any())
-                    return NotFound(new { message = "Nenhum cliente encontrado." });
-
-                return Ok(clients);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = $"Erro interno: {ex.Message}" });
-            }
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var client = await _clientService.GetByIdAsync(id);
+            return client is null ? NotFound() : Ok(client);
         }
 
         [HttpPut("{documentNumber}")]
@@ -57,30 +51,23 @@ namespace deposito_do_pitty.Api
                 return BadRequest("Documento não confere.");
 
             var client = await _clientService.GetByDocumentNumberAsync(documentNumber);
-
             if (client == null)
                 return NotFound("Cliente não encontrado.");
+
             updatedClient.UpdatedAt = DateTime.UtcNow;
             await _clientService.UpdateAsync(updatedClient);
-
             return Ok("Cliente atualizado com sucesso.");
         }
 
-
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteClient(int id)
         {
             var client = await _clientService.GetByIdAsync(id);
-
             if (client == null)
                 return NotFound("Cliente não encontrado.");
 
             await _clientService.DeleteAsync(id);
-
-            return Ok("Cliente excluído com sucesso.");
+            return NoContent();
         }
     }
-
 }
-
-

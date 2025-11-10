@@ -36,6 +36,8 @@ namespace deposito_do_pitty.Application.Services
 
         public async Task CreateAsync(AccountsPayableDto dto)
         {
+            var now = DateTime.UtcNow;
+
             var entity = new AccountsPayable
             {
                 Supplier = dto.Supplier,
@@ -43,26 +45,38 @@ namespace deposito_do_pitty.Application.Services
                 Amount = dto.Amount,
                 DueDate = dto.DueDate,
                 Status = dto.Status,
-                PaymentDate = dto.Status == 1 ? DateTime.UtcNow : null,
-                IsOverdue = dto.Status == 0 && dto.DueDate < DateTime.UtcNow
+
+             
+                CreatedAt = now,
+                UpdatedAt = now,
+
+             
+                PaymentDate = dto.Status == 1 ? now : null,
+                IsOverdue = dto.Status == 0 && dto.DueDate < now
             };
 
             await _repository.AddAsync(entity);
         }
+
 
         public async Task UpdateAsync(int id, AccountsPayableDto dto)
         {
             var entity = await _repository.GetByIdAsync(id);
             if (entity == null) throw new Exception("Conta não encontrada.");
 
+            var now = DateTime.UtcNow;
+
             entity.Supplier = dto.Supplier;
             entity.Description = dto.Description;
             entity.Amount = dto.Amount;
             entity.DueDate = dto.DueDate;
             entity.Status = dto.Status;
-            entity.PaymentDate = dto.Status == 1 ? DateTime.UtcNow : entity.PaymentDate;
-            entity.IsOverdue = dto.Status == 0 && dto.DueDate < DateTime.UtcNow;
-            entity.UpdatedAt = DateTime.UtcNow;
+
+          
+            entity.PaymentDate = dto.Status == 1 ? (entity.PaymentDate ?? now) : null;
+            entity.IsOverdue = dto.Status == 0 && dto.DueDate < now;
+
+            entity.UpdatedAt = now;
 
             await _repository.UpdateAsync(entity);
         }

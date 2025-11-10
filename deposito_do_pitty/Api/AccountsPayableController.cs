@@ -1,11 +1,13 @@
 ﻿using deposito_do_pitty.Application.DTOs;
 using deposito_do_pitty.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace deposito_do_pitty.Api
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class AccountsPayableController : ControllerBase
     {
         private readonly IAccountsPayableService _service;
