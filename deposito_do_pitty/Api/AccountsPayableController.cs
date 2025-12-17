@@ -17,14 +17,14 @@ namespace deposito_do_pitty.Api
             _service = service;
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] AccountsPayableDto dto)
         {
             await _service.CreateAsync(dto);
             return Ok();
         }
 
-        [HttpPut("{id:int}")]
+        [HttpPut("update/{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] AccountsPayableDto dto)
         {
             if (dto == null) return BadRequest("Dados inválidos.");
@@ -32,14 +32,14 @@ namespace deposito_do_pitty.Api
             return Ok();
         }
 
-        [HttpGet]
+        [HttpGet("get-all")]
         public async Task<IActionResult> GetAll()
         {
             var result = await _service.GetAllAsync();
             return Ok(result);
         }
 
-        [HttpGet("{id:int}")]
+        [HttpGet("get-by-id/{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             var all = await _service.GetAllAsync();
@@ -47,7 +47,7 @@ namespace deposito_do_pitty.Api
             return one is null ? NotFound() : Ok(one);
         }
 
-        [HttpDelete("{id:int}")]
+        [HttpDelete("delete/{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             await _service.DeleteAsync(id);

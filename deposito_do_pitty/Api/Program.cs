@@ -17,7 +17,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddValidatorsFromAssemblyContaining<UserDtoValidator>();
@@ -71,7 +70,7 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidAudience = jwtSection["Audience"],
         ValidateLifetime = true,
-        ClockSkew = TimeSpan.FromMinutes(2) 
+        ClockSkew = TimeSpan.FromMinutes(2)
     };
 });
 

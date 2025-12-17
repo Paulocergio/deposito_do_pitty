@@ -9,13 +9,12 @@ namespace deposito_do_pitty.Api
     public class ProductController : ControllerBase
     {
         private readonly IProductService _service;
-
         public ProductController(IProductService service)
         {
             _service = service;
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] ProductDto dto)
         {
             try
@@ -29,7 +28,7 @@ namespace deposito_do_pitty.Api
             }
         }
 
-        [HttpPut("{id:int}")]
+        [HttpPut("update/{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] ProductDto dto)
         {
             try
@@ -43,21 +42,21 @@ namespace deposito_do_pitty.Api
             }
         }
 
-        [HttpGet]
+        [HttpGet("get-all")]
         public async Task<IActionResult> GetAll()
         {
             var list = await _service.GetAllAsync();
             return Ok(list);
         }
 
-        [HttpGet("{id:int}")]
+        [HttpGet("get-by-id/{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             var product = await _service.GetByIdAsync(id);
             return product is null ? NotFound() : Ok(product);
         }
 
-        [HttpDelete("{id:int}")]
+        [HttpDelete("delete/{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             await _service.DeleteAsync(id);

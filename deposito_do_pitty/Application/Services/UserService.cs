@@ -30,10 +30,6 @@ namespace DepositoDoPitty.Application.Services
                 IsActive = u.IsActive 
             });
         }
-
-
-
-
         public async Task<int> CreateAsync(UserDto dto)
         {
             var existingEmail = await _userRepository.GetByValidationEmailAsync(dto.Email);

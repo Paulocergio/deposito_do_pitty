@@ -22,22 +22,21 @@ namespace DepositoDoPitty.Api.Controllers
             _authService = authService;
         }
 
-  
-        [HttpGet]
+        [HttpGet("get-all")]
         public async Task<IActionResult> GetAll()
         {
             var users = await _userService.GetAllAsync();
-            return Ok(users); 
+            return Ok(users);
         }
 
-        [HttpGet("{id:int}")]
+        [HttpGet("get-by-id/{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             var user = await _userService.GetByIdAsync(id);
             return user is null ? NotFound() : Ok(user);
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] UserDto dto)
         {
             var id = await _userService.CreateAsync(dto);
@@ -45,7 +44,7 @@ namespace DepositoDoPitty.Api.Controllers
             return CreatedAtAction(nameof(GetById), new { id }, created);
         }
 
-        [HttpPut("{id:int}")]
+        [HttpPut("update/{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateUserDto dto)
         {
             if (id != dto.Id) return BadRequest(new { message = "ID do corpo difere do ID da URL." });
@@ -53,14 +52,13 @@ namespace DepositoDoPitty.Api.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id:int}")]
+        [HttpDelete("delete/{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             await _userService.DeleteAsync(id);
             return NoContent();
         }
 
-    
         [HttpPost("login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto request)

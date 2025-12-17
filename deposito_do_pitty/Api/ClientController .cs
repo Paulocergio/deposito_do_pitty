@@ -15,7 +15,7 @@ namespace deposito_do_pitty.Api
             _clientService = clientService;
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] Client client)
         {
             try
@@ -29,7 +29,7 @@ namespace deposito_do_pitty.Api
             }
         }
 
-        [HttpPut("{documentNumber}")]
+        [HttpPut("update-by-document/{documentNumber}")]
         public async Task<IActionResult> UpdateClient(string documentNumber, [FromBody] Client updatedClient)
         {
             if (documentNumber != updatedClient.DocumentNumber) return BadRequest("Documento não confere.");
@@ -40,21 +40,21 @@ namespace deposito_do_pitty.Api
             return Ok("Cliente atualizado com sucesso.");
         }
 
-        [HttpGet]
+        [HttpGet("get-all")]
         public async Task<IActionResult> GetAll()
         {
             var clients = await _clientService.GetAllAsync();
             return Ok(clients);
         }
 
-        [HttpGet("{id:int}")]
+        [HttpGet("get-by-id/{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             var client = await _clientService.GetByIdAsync(id);
             return client is null ? NotFound() : Ok(client);
         }
 
-        [HttpDelete("{id:int}")]
+        [HttpDelete("delete/{id:int}")]
         public async Task<IActionResult> DeleteClient(int id)
         {
             var client = await _clientService.GetByIdAsync(id);

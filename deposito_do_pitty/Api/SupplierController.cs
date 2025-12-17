@@ -17,7 +17,7 @@ namespace deposito_do_pitty.Api
             _supplierService = supplierService;
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] Supplier supplier)
         {
             if (!ModelState.IsValid) return BadRequest(new { sucesso = false, mensagem = "Dados inválidos." });
@@ -32,7 +32,7 @@ namespace deposito_do_pitty.Api
             }
         }
 
-        [HttpPut("{id:int}")]
+        [HttpPut("update/{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] Supplier supplier)
         {
             if (!ModelState.IsValid) return BadRequest(new { sucesso = false, mensagem = "Dados inválidos." });
@@ -42,21 +42,21 @@ namespace deposito_do_pitty.Api
             return Ok(new { sucesso = true, mensagem = "Fornecedor atualizado com sucesso!" });
         }
 
-        [HttpGet]
+        [HttpGet("get-all")]
         public async Task<IActionResult> GetAll()
         {
             var suppliers = await _supplierService.GetAllAsync();
             return Ok(new { sucesso = true, mensagem = "Fornecedores listados com sucesso!", dados = suppliers });
         }
 
-        [HttpGet("{id:int}")]
+        [HttpGet("get-by-id/{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             var supplier = await _supplierService.GetByIdAsync(id);
             return supplier is null ? NotFound() : Ok(supplier);
         }
 
-        [HttpDelete("{id:int}")]
+        [HttpDelete("delete/{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             var existing = await _supplierService.GetByIdAsync(id);
