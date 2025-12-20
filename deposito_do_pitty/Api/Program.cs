@@ -1,29 +1,58 @@
+using System.Text;
+using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+
 using deposito_do_pitty.Application.Interfaces;
 using deposito_do_pitty.Application.Services;
 using deposito_do_pitty.Application.Validators;
 using deposito_do_pitty.Domain.Interfaces;
 using deposito_do_pitty.Infrastructure.Repositories;
+
 using DepositoDoPitty.Application.Interfaces;
 using DepositoDoPitty.Application.Services;
 using DepositoDoPitty.Domain.Interfaces;
 using DepositoDoPitty.Infrastructure.Persistence;
 using DepositoDoPitty.Infrastructure.Repositories;
-using FluentValidation;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ------------------------------------------------------------
+// DB
+// ------------------------------------------------------------
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException("ConnectionStrings:DefaultConnection ausente nas configurações.");
+}
 
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(connectionString));
+
+// ------------------------------------------------------------
+// Validators / Controllers
+// - Protege TODOS os controllers por padrão via filtro global
+// - Swagger não é afetado (Swagger não é controller)
+// - Login precisa ter [AllowAnonymous]
+// ------------------------------------------------------------
 builder.Services.AddValidatorsFromAssemblyContaining<UserDtoValidator>();
-builder.Services.AddControllers();
 
-builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
+builder.Services.AddControllers(options =>
+{
+    var globalAuthPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
 
+    options.Filters.Add(new AuthorizeFilter(globalAuthPolicy));
+});
+
+// ------------------------------------------------------------
+// DI Repos / Services
+// ------------------------------------------------------------
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
@@ -39,48 +68,68 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IBudgetService, BudgetService>();
 builder.Services.AddScoped<IAccountsPayableService, AccountsPayableService>();
 
+// ------------------------------------------------------------
+// CORS
+// ------------------------------------------------------------
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-    });
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod());
 });
 
+// ------------------------------------------------------------
+// JWT
+// ------------------------------------------------------------
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var jwtKey = jwtSection["Key"];
-if (string.IsNullOrWhiteSpace(jwtKey)) throw new InvalidOperationException("Jwt:Key ausente nas configurações.");
+var jwtIssuer = jwtSection["Issuer"];
+var jwtAudience = jwtSection["Audience"];
+
+if (string.IsNullOrWhiteSpace(jwtKey))
+    throw new InvalidOperationException("Jwt:Key ausente nas configurações.");
+if (string.IsNullOrWhiteSpace(jwtIssuer))
+    throw new InvalidOperationException("Jwt:Issuer ausente nas configurações.");
+if (string.IsNullOrWhiteSpace(jwtAudience))
+    throw new InvalidOperationException("Jwt:Audience ausente nas configurações.");
+
 var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.RequireHttpsMetadata = true;
-    options.SaveToken = true;
-    options.TokenValidationParameters = new TokenValidationParameters
+builder.Services
+    .AddAuthentication(options =>
     {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = signingKey,
-        ValidateIssuer = true,
-        ValidIssuer = jwtSection["Issuer"],
-        ValidateAudience = true,
-        ValidAudience = jwtSection["Audience"],
-        ValidateLifetime = true,
-        ClockSkew = TimeSpan.FromMinutes(2)
-    };
-});
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        // Em container você está servindo HTTP (por enquanto), então deixe false
+        // Quando tiver um proxy HTTPS na frente, pode voltar para true.
+        options.RequireHttpsMetadata = false;
 
-builder.Services.AddAuthorization(options =>
-{
-    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
-});
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = signingKey,
 
+            ValidateIssuer = true,
+            ValidIssuer = jwtIssuer,
+
+            ValidateAudience = true,
+            ValidAudience = jwtAudience,
+
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromMinutes(2)
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+// ------------------------------------------------------------
+// Swagger
+// ------------------------------------------------------------
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -114,15 +163,29 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+// ------------------------------------------------------------
+// Swagger habilitável em Production via config/env:
+// Swagger__Enabled=true
+// ------------------------------------------------------------
+var swaggerEnabled = app.Configuration.GetValue<bool>("Swagger:Enabled");
+if (swaggerEnabled)
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
 app.UseCors("AllowAll");
-app.UseHttpsRedirection();
+
+// Se você não configurou HTTPS dentro do container, evite redirecionar.
+// (O ideal é HTTPS no proxy reverso depois.)
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
+
 app.Run();
