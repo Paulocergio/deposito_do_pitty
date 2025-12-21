@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Scalar.AspNetCore;
 
 using deposito_do_pitty.Application.Interfaces;
 using deposito_do_pitty.Application.Services;
@@ -21,9 +22,7 @@ using DepositoDoPitty.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ------------------------------------------------------------
-// DB
-// ------------------------------------------------------------
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (string.IsNullOrWhiteSpace(connectionString))
 {
@@ -33,12 +32,7 @@ if (string.IsNullOrWhiteSpace(connectionString))
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// ------------------------------------------------------------
-// Validators / Controllers
-// - Protege TODOS os controllers por padrão via filtro global
-// - Swagger não é afetado (Swagger não é controller)
-// - Login precisa ter [AllowAnonymous]
-// ------------------------------------------------------------
+
 builder.Services.AddValidatorsFromAssemblyContaining<UserDtoValidator>();
 
 builder.Services.AddControllers(options =>
@@ -50,9 +44,7 @@ builder.Services.AddControllers(options =>
     options.Filters.Add(new AuthorizeFilter(globalAuthPolicy));
 });
 
-// ------------------------------------------------------------
-// DI Repos / Services
-// ------------------------------------------------------------
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
@@ -104,8 +96,7 @@ builder.Services
     })
     .AddJwtBearer(options =>
     {
-        // Em container você está servindo HTTP (por enquanto), então deixe false
-        // Quando tiver um proxy HTTPS na frente, pode voltar para true.
+
         options.RequireHttpsMetadata = false;
 
         options.SaveToken = true;
@@ -127,9 +118,6 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
-// ------------------------------------------------------------
-// Swagger
-// ------------------------------------------------------------
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -163,21 +151,30 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// ------------------------------------------------------------
-// Swagger habilitável em Production via config/env:
-// Swagger__Enabled=true
-// ------------------------------------------------------------
+
 var swaggerEnabled = app.Configuration.GetValue<bool>("Swagger:Enabled");
-if (swaggerEnabled)
+
+if (app.Environment.IsDevelopment() || swaggerEnabled)
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwagger(c =>
+    {
+        c.RouteTemplate = "swagger/{documentName}/swagger.json";
+    });
+
+    app.MapScalarApiReference(options =>
+    {
+        options.WithTitle("Deposito do Pitty API")
+               .WithOpenApiRoutePattern("/swagger/{documentName}/swagger.json")
+               .AddDocument("v1");
+    })
+    .AllowAnonymous();
 }
+
 
 app.UseCors("AllowAll");
 
-// Se você não configurou HTTPS dentro do container, evite redirecionar.
-// (O ideal é HTTPS no proxy reverso depois.)
+// Se você ainda NÃO tem HTTPS dentro do container, evite redirecionar fora do Dev.
+// (Use HTTPS no proxy reverso.)
 if (app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
