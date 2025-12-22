@@ -1,6 +1,7 @@
 ﻿using deposito_do_pitty.Application.DTOs;
 using deposito_do_pitty.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace deposito_do_pitty.Api
 {
@@ -22,11 +23,17 @@ namespace deposito_do_pitty.Api
                 var product = await _service.CreateAsync(dto);
                 return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
             }
+            catch (DbUpdateException ex)
+            {
+                var inner = ex.InnerException?.Message ?? ex.Message;
+                return Conflict(new { message = inner });
+            }
             catch (Exception ex)
             {
-                return Conflict(new { message = ex.Message });
+                return StatusCode(500, new { message = ex.Message });
             }
         }
+
 
         [HttpPut("update/{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] ProductDto dto)

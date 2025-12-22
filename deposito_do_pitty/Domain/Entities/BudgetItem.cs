@@ -11,8 +11,8 @@ namespace deposito_do_pitty.Domain.Entities
         public decimal UnitPrice { get; set; }
         public decimal Total { get; set; }
 
-        [JsonIgnore]
-        public Budget? Budget { get; set; }
+
+        public Budget? Budget { get; set; } 
     }
 
 }
