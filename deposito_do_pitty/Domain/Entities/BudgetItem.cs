@@ -1,4 +1,6 @@
-﻿namespace deposito_do_pitty.Domain.Entities
+﻿using System.Text.Json.Serialization;
+
+namespace deposito_do_pitty.Domain.Entities
 {
     public class BudgetItem
     {
@@ -10,7 +12,7 @@
         public decimal UnitPrice { get; set; }
     
         public decimal Total { get; set; }
-
+        [JsonIgnore]
         public Budget? Budget { get; set; }
     }
 }
