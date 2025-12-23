@@ -123,20 +123,6 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-var swaggerEnabled = app.Configuration.GetValue<bool>("Swagger:Enabled");
-
-if (app.Environment.IsDevelopment() || swaggerEnabled)
-{
-    app.UseSwagger();
-
-    app.MapScalarApiReference(options =>
-    {
-        options.WithTitle("Deposito do Pitty API")
-               .WithOpenApiRoutePattern("/swagger/{documentName}/swagger.json")
-               .AddDocument("v1");
-    })
-    .AllowAnonymous();
-}
 
 app.UseRouting();
 
@@ -144,6 +130,27 @@ app.UseCors("AllowAll");
 
 if (app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
+
+
+var swaggerEnabled = app.Configuration.GetValue<bool>("Swagger:Enabled");
+
+if (app.Environment.IsDevelopment() || swaggerEnabled)
+{
+ 
+    app.MapSwagger().AllowAnonymous();
+
+   
+    app.MapScalarApiReference(options =>
+    {
+        options.WithTitle("Deposito do Pitty API")
+               .WithOpenApiRoutePattern("/swagger/v1/swagger.json")
+               .AddDocument("v1");
+    })
+    .AllowAnonymous();
+
+    
+}
+
 
 app.UseAuthentication();
 app.UseAuthorization();
