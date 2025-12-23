@@ -22,16 +22,11 @@ using DepositoDoPitty.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (string.IsNullOrWhiteSpace(connectionString))
-{
     throw new InvalidOperationException("ConnectionStrings:DefaultConnection ausente nas configurações.");
-}
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
-
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 
 builder.Services.AddValidatorsFromAssemblyContaining<UserDtoValidator>();
 
@@ -43,7 +38,6 @@ builder.Services.AddControllers(options =>
 
     options.Filters.Add(new AuthorizeFilter(globalAuthPolicy));
 });
-
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
@@ -60,9 +54,6 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IBudgetService, BudgetService>();
 builder.Services.AddScoped<IAccountsPayableService, AccountsPayableService>();
 
-// ------------------------------------------------------------
-// CORS
-// ------------------------------------------------------------
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -71,9 +62,6 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod());
 });
 
-// ------------------------------------------------------------
-// JWT
-// ------------------------------------------------------------
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var jwtKey = jwtSection["Key"];
 var jwtIssuer = jwtSection["Issuer"];
@@ -96,21 +84,16 @@ builder.Services
     })
     .AddJwtBearer(options =>
     {
-
         options.RequireHttpsMetadata = false;
-
         options.SaveToken = true;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = signingKey,
-
             ValidateIssuer = true,
             ValidIssuer = jwtIssuer,
-
             ValidateAudience = true,
             ValidAudience = jwtAudience,
-
             ValidateLifetime = true,
             ClockSkew = TimeSpan.FromMinutes(2)
         };
@@ -151,15 +134,11 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-
 var swaggerEnabled = app.Configuration.GetValue<bool>("Swagger:Enabled");
 
 if (app.Environment.IsDevelopment() || swaggerEnabled)
 {
-    app.UseSwagger(c =>
-    {
-        c.RouteTemplate = "swagger/{documentName}/swagger.json";
-    });
+    app.UseSwagger(c => { c.RouteTemplate = "swagger/{documentName}/swagger.json"; });
 
     app.MapScalarApiReference(options =>
     {
@@ -170,15 +149,12 @@ if (app.Environment.IsDevelopment() || swaggerEnabled)
     .AllowAnonymous();
 }
 
+app.UseRouting();
 
 app.UseCors("AllowAll");
 
-// Se você ainda NÃO tem HTTPS dentro do container, evite redirecionar fora do Dev.
-// (Use HTTPS no proxy reverso.)
 if (app.Environment.IsDevelopment())
-{
     app.UseHttpsRedirection();
-}
 
 app.UseAuthentication();
 app.UseAuthorization();
