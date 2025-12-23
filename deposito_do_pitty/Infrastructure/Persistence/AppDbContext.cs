@@ -41,14 +41,8 @@ namespace DepositoDoPitty.Infrastructure.Persistence
                 entity.Property(b => b.Id)
                     .HasColumnName("id");
 
-                entity.Property(b => b.BudgetNumber)
-                    .HasColumnName("budgetnumber")
-                    .HasMaxLength(50);
+             
 
-                entity.Property(b => b.CustomerName)
-                    .HasColumnName("customername")
-                    .HasMaxLength(150)
-                    .IsRequired();
 
                 entity.Property(b => b.Email)
                     .HasColumnName("email")
@@ -62,22 +56,8 @@ namespace DepositoDoPitty.Infrastructure.Persistence
                     .HasColumnName("address")
                     .HasMaxLength(255);
 
-                entity.Property(b => b.IssueDate)
-                    .HasColumnName("issuedate")
-                    .HasColumnType("timestamp with time zone")
-                    .HasConversion(
-                        v => DateTime.SpecifyKind(v, DateTimeKind.Utc),
-                        v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
-                    );
+               
 
-
-                entity.Property(b => b.DueDate)
-                    .HasColumnName("duedate")
-                    .HasColumnType("timestamp with time zone")
-                    .HasConversion(
-                        v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v,
-                        v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v
-                    );
 
                 entity.Property(b => b.Discount)
                     .HasColumnName("discount")
@@ -87,23 +67,31 @@ namespace DepositoDoPitty.Infrastructure.Persistence
                     .HasColumnName("total")
                     .HasPrecision(10, 2);
 
-                entity.Property(b => b.CreatedAt)
-                    .HasColumnName("createdat")
-                    .HasColumnType("timestamp with time zone")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                    .HasConversion(
-                        v => DateTime.SpecifyKind(v, DateTimeKind.Utc),
-                        v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
-                    );
-                entity.Property(b => b.UpdatedAt)
-                    .HasColumnName("updatedat")
-                    .HasColumnType("timestamp with time zone")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                    .HasConversion(
-                        v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : (DateTime?)null,
-                        v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : (DateTime?)null
-                    );
 
+                entity.Property(b => b.BudgetNumber)
+      .HasColumnName("budget_number");
+
+                entity.Property(b => b.CustomerName)
+                    .HasColumnName("customer_name");
+
+                entity.Property(b => b.IssueDate)
+       .HasColumnName("issue_date")
+       .HasColumnType("timestamp with time zone");
+
+                entity.Property(b => b.DueDate)
+                    .HasColumnName("due_date")
+                    .HasColumnType("timestamp with time zone");
+
+
+                entity.Property(b => b.CreatedAt)
+                    .HasColumnName("created_at")
+                    .HasColumnType("timestamp with time zone")
+                    .HasDefaultValueSql("NOW()");
+
+                entity.Property(b => b.UpdatedAt)
+                    .HasColumnName("updated_at")
+                    .HasColumnType("timestamp with time zone")
+                    .HasDefaultValueSql("NOW()"); 
 
                 entity.HasMany(b => b.Items)
                     .WithOne(i => i.Budget!)
@@ -112,20 +100,20 @@ namespace DepositoDoPitty.Infrastructure.Persistence
             });
 
 
-           
+
 
 
             modelBuilder.Entity<BudgetItem>(entity =>
             {
-                entity.ToTable("budgetitems");
+                entity.ToTable("budget_items");
                 entity.HasKey(i => i.Id);
 
                 entity.Property(i => i.Id).HasColumnName("id");
-                entity.Property(i => i.BudgetId).HasColumnName("budgetid");
+                entity.Property(i => i.BudgetId).HasColumnName("budget_id");
                 entity.Property(i => i.Description).HasColumnName("description");
                 entity.Property(i => i.Quantity).HasColumnName("quantity");
-                entity.Property(i => i.UnitPrice).HasColumnName("unitprice").HasPrecision(10, 2);
-                entity.Property(i => i.Total).HasColumnName("total").HasPrecision(10, 2);
+                entity.Property(i => i.UnitPrice).HasColumnName("unit_price").HasPrecision(18, 2);
+                entity.Property(i => i.Total).HasColumnName("total").HasPrecision(18, 2);
             });
 
 

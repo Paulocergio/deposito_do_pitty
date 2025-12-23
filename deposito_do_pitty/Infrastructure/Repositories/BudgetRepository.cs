@@ -68,7 +68,7 @@ namespace deposito_do_pitty.Infrastructure.Repositories
             existing.IssueDate = budget.IssueDate;
             existing.DueDate = budget.DueDate;
             existing.Discount = budget.Discount;
-            existing.Tax = budget.Tax;
+        
             existing.UpdatedAt = DateTime.UtcNow;
 
 
@@ -103,7 +103,8 @@ namespace deposito_do_pitty.Infrastructure.Repositories
             }
 
             var subtotal = existing.Items.Sum(i => i.Total);
-            var total = subtotal - existing.Discount + existing.Tax;
+            var total = subtotal - existing.Discount;
+
             existing.Total = total < 0 ? 0 : total;
 
             await _context.SaveChangesAsync();
