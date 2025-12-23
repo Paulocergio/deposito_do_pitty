@@ -1,4 +1,5 @@
 ﻿using deposito_do_pitty.Application.DTOs;
+using deposito_do_pitty.Domain.Enums;
 using FluentValidation;
 
 namespace deposito_do_pitty.Application.Validators
@@ -7,7 +8,6 @@ namespace deposito_do_pitty.Application.Validators
     {
         public AccountsPayableDtoValidator()
         {
-           
             RuleFor(x => x.Supplier)
                 .NotEmpty().WithMessage("O campo 'Supplier' é obrigatório.")
                 .MaximumLength(255).WithMessage("O campo 'Supplier' deve ter no máximo 255 caracteres.");
@@ -23,8 +23,20 @@ namespace deposito_do_pitty.Application.Validators
                 .NotEmpty().WithMessage("A data de vencimento é obrigatória.");
 
             RuleFor(x => x.Status)
-                .Must(s => s == 0 || s == 1)
-                .WithMessage("Status deve ser 0 (Pendente) ou 1 (Pago).");
+                .IsInEnum()
+                .WithMessage("Status inválido.");
+
+    
+            RuleFor(x => x.PaymentDate)
+                .NotNull()
+                .When(x => x.Status == AccountsPayableStatus.Paid)
+                .WithMessage("PaymentDate é obrigatório quando o status for Pago.");
+
+       
+            RuleFor(x => x.PaymentDate)
+                .Null()
+                .When(x => x.Status != AccountsPayableStatus.Paid)
+                .WithMessage("PaymentDate deve ser nulo quando a conta não está paga.");
         }
     }
 }

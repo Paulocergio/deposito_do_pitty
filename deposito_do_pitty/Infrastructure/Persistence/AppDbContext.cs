@@ -1,4 +1,5 @@
 ﻿using deposito_do_pitty.Domain.Entities;
+using deposito_do_pitty.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace DepositoDoPitty.Infrastructure.Persistence
@@ -316,30 +317,42 @@ namespace DepositoDoPitty.Infrastructure.Persistence
                 entity.HasKey(x => x.Id);
 
                 entity.Property(x => x.Supplier)
-                      .IsRequired()
-                      .HasMaxLength(255);
+                    .IsRequired()
+                    .HasMaxLength(255);
 
                 entity.Property(x => x.Description)
-                      .IsRequired()
-                      .HasMaxLength(255);
+                    .IsRequired()
+                    .HasMaxLength(255);
 
                 entity.Property(x => x.Amount)
-                      .HasPrecision(18, 2)
-                      .IsRequired();
+                    .HasPrecision(18, 2)
+                    .IsRequired();
 
                 entity.Property(x => x.DueDate).IsRequired();
 
+        entity.Property(x => x.Status)
+      .HasConversion<short>()
+      .HasDefaultValue(AccountsPayableStatus.Pending)
+      .IsRequired();
+
                 entity.Property(x => x.Status)
-                      .HasDefaultValue(0)
-                      .IsRequired();
+                    .HasConversion<short>()
+                    .HasDefaultValue(AccountsPayableStatus.Pending)
+                    .IsRequired();
+
+                entity.Property(x => x.PaymentDate)
+                    .IsRequired(false);
+
+                entity.Property(x => x.IsOverdue)
+                    .HasDefaultValue(false)
+                    .IsRequired();
 
                 entity.Property(x => x.CreatedAt)
-                      .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                 entity.Property(x => x.UpdatedAt)
-                      .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
             });
-
         }
     }
 }

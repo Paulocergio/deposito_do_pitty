@@ -1,9 +1,8 @@
-﻿using deposito_do_pitty.Application.Interfaces;
-using deposito_do_pitty.Domain.Interfaces;
-using deposito_do_pitty.Application.DTOs;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using deposito_do_pitty.Application.DTOs;
+using deposito_do_pitty.Application.Interfaces;
 using deposito_do_pitty.Domain.Entities;
+using deposito_do_pitty.Domain.Enums;
+using deposito_do_pitty.Domain.Interfaces;
 
 namespace deposito_do_pitty.Application.Services
 {
@@ -28,11 +27,10 @@ namespace deposito_do_pitty.Application.Services
                 Amount = a.Amount,
                 DueDate = a.DueDate,
                 Status = a.Status,
-                PaymentDate = a.PaymentDate,   
-                IsOverdue = a.IsOverdue        
-            }); 
+                PaymentDate = a.PaymentDate,
+                IsOverdue = a.IsOverdue
+            });
         }
-
 
         public async Task CreateAsync(AccountsPayableDto dto)
         {
@@ -44,20 +42,16 @@ namespace deposito_do_pitty.Application.Services
                 Description = dto.Description,
                 Amount = dto.Amount,
                 DueDate = dto.DueDate,
-                Status = dto.Status,
+                PaymentDate = dto.PaymentDate,
 
-             
                 CreatedAt = now,
-                UpdatedAt = now,
-
-             
-                PaymentDate = dto.Status == 1 ? now : null,
-                IsOverdue = dto.Status == 0 && dto.DueDate < now
+                UpdatedAt = now
             };
+
+            ApplyStatusRules(entity, now);
 
             await _repository.AddAsync(entity);
         }
-
 
         public async Task UpdateAsync(int id, AccountsPayableDto dto)
         {
@@ -70,23 +64,37 @@ namespace deposito_do_pitty.Application.Services
             entity.Description = dto.Description;
             entity.Amount = dto.Amount;
             entity.DueDate = dto.DueDate;
-            entity.Status = dto.Status;
+            entity.PaymentDate = dto.PaymentDate;
 
-          
-            entity.PaymentDate = dto.Status == 1 ? (entity.PaymentDate ?? now) : null;
-            entity.IsOverdue = dto.Status == 0 && dto.DueDate < now;
+            ApplyStatusRules(entity, now);
 
             entity.UpdatedAt = now;
 
             await _repository.UpdateAsync(entity);
         }
 
-
         public async Task DeleteAsync(int id)
         {
             await _repository.DeleteAsync(id);
         }
 
-       
+
+        private static void ApplyStatusRules(AccountsPayable entity, DateTime nowUtc)
+        {
+            if (entity.PaymentDate.HasValue)
+            {
+                entity.Status = AccountsPayableStatus.Paid;
+                entity.IsOverdue = false;
+                return;
+            }
+
+            var overdueNow = nowUtc.Date > entity.DueDate.Date;
+
+            entity.Status = overdueNow
+                ? AccountsPayableStatus.Overdue
+                : AccountsPayableStatus.Pending;
+
+            entity.IsOverdue = overdueNow;
+        }
     }
 }

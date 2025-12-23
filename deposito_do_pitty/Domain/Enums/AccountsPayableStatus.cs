@@ -2,7 +2,8 @@
 {
     public enum AccountsPayableStatus : short
     {
-        Pendente = 0,
-        Pago = 1
+        Pending = 0,
+        Paid = 1,
+        Overdue = 2
     }
 }
