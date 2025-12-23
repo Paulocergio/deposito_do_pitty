@@ -1,24 +1,20 @@
-using System.Text;
-using FluentValidation;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Authorization;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using Scalar.AspNetCore;
-
 using deposito_do_pitty.Application.Interfaces;
 using deposito_do_pitty.Application.Services;
 using deposito_do_pitty.Application.Validators;
 using deposito_do_pitty.Domain.Interfaces;
 using deposito_do_pitty.Infrastructure.Repositories;
-
 using DepositoDoPitty.Application.Interfaces;
 using DepositoDoPitty.Application.Services;
 using DepositoDoPitty.Domain.Interfaces;
 using DepositoDoPitty.Infrastructure.Persistence;
 using DepositoDoPitty.Infrastructure.Repositories;
+using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Scalar.AspNetCore;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,14 +26,7 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connect
 
 builder.Services.AddValidatorsFromAssemblyContaining<UserDtoValidator>();
 
-builder.Services.AddControllers(options =>
-{
-    var globalAuthPolicy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
-
-    options.Filters.Add(new AuthorizeFilter(globalAuthPolicy));
-});
+builder.Services.AddControllers();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
@@ -140,12 +129,6 @@ if (app.Environment.IsDevelopment() || swaggerEnabled)
 {
     app.UseSwagger();
 
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Deposito do Pitty API v1");
-        c.RoutePrefix = "swagger";
-    });
-
     app.MapScalarApiReference(options =>
     {
         options.WithTitle("Deposito do Pitty API")
@@ -154,7 +137,6 @@ if (app.Environment.IsDevelopment() || swaggerEnabled)
     })
     .AllowAnonymous();
 }
-
 
 app.UseRouting();
 
