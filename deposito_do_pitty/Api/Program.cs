@@ -102,7 +102,7 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Cole APENAS o token (sem a palavra Bearer)."
+        Description = "Cole APENAS o token (sem a palavra Bearer)"
     });
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
