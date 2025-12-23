@@ -60,7 +60,7 @@ namespace deposito_do_pitty.Infrastructure.Repositories
             if (existing == null)
                 throw new InvalidOperationException("Orçamento não encontrado.");
 
-            // Atualiza campos simples
+            existing.BudgetNumber = budget.BudgetNumber;
             existing.CustomerName = budget.CustomerName;
             existing.Email = budget.Email;
             existing.Phone = budget.Phone;
@@ -68,11 +68,14 @@ namespace deposito_do_pitty.Infrastructure.Repositories
             existing.IssueDate = budget.IssueDate;
             existing.DueDate = budget.DueDate;
             existing.Discount = budget.Discount;
-            existing.Total = budget.Total;
+            existing.Tax = budget.Tax;
             existing.UpdatedAt = DateTime.UtcNow;
 
-            // Sincroniza itens: remove os que não existem mais, atualiza os existentes e adiciona novos
-            var incomingById = budget.Items.Where(i => i.Id != 0).ToDictionary(i => i.Id);
+
+            var incomingById = budget.Items
+                .Where(i => i.Id != 0)
+                .ToDictionary(i => i.Id);
+
             var toRemove = existing.Items.Where(ei => !incomingById.ContainsKey(ei.Id)).ToList();
             if (toRemove.Any())
                 _context.BudgetItems.RemoveRange(toRemove);
@@ -81,28 +84,31 @@ namespace deposito_do_pitty.Infrastructure.Repositories
             {
                 if (item.Id == 0)
                 {
-                    // novo
                     existing.Items.Add(new BudgetItem
                     {
                         Description = item.Description,
                         Quantity = item.Quantity,
                         UnitPrice = item.UnitPrice,
-                        Total = item.Total
+                        Total = item.Quantity * item.UnitPrice
                     });
                 }
                 else
                 {
-                    // atualizar existente
                     var tracked = existing.Items.First(ei => ei.Id == item.Id);
                     tracked.Description = item.Description;
                     tracked.Quantity = item.Quantity;
                     tracked.UnitPrice = item.UnitPrice;
-                    tracked.Total = item.Total;
+                    tracked.Total = item.Quantity * item.UnitPrice;
                 }
             }
 
+            var subtotal = existing.Items.Sum(i => i.Total);
+            var total = subtotal - existing.Discount + existing.Tax;
+            existing.Total = total < 0 ? 0 : total;
+
             await _context.SaveChangesAsync();
         }
+
 
 
         public async Task DeleteAsync(Budget budget)
