@@ -13,5 +13,7 @@
         public string Barcode { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
+
     }
 }

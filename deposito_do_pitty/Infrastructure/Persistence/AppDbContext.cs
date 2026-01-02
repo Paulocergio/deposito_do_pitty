@@ -18,6 +18,7 @@ namespace DepositoDoPitty.Infrastructure.Persistence
 
         public DbSet<AccountsPayable> AccountsPayables { get; set; } = null!;
 
+        public DbSet<ProductImage> ProductImages { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -310,6 +311,23 @@ namespace DepositoDoPitty.Infrastructure.Persistence
 
                 entity.HasIndex(p => p.Barcode).IsUnique();
             });
+
+            modelBuilder.Entity<ProductImage>(entity =>
+            {
+                entity.HasKey(x => x.Id);
+
+                entity.Property(x => x.FileName).IsRequired();
+                entity.Property(x => x.ContentType).IsRequired();
+                entity.Property(x => x.Url).IsRequired();
+
+                entity.HasOne(x => x.Product)
+                      .WithMany(p => p.Images)
+                      .HasForeignKey(x => x.ProductId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(x => x.ProductId);
+            });
+
 
             modelBuilder.Entity<AccountsPayable>(entity =>
             {

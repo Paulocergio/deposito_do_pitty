@@ -1,7 +1,6 @@
 ﻿using deposito_do_pitty.Application.DTOs;
 using deposito_do_pitty.Application.DTOs.Auth;
 using deposito_do_pitty.Application.Interfaces;
-using deposito_do_pitty.Infrastructure.Persistence;
 using DepositoDoPitty.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

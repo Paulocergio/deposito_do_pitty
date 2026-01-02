@@ -1,6 +1,5 @@
 ﻿using deposito_do_pitty.Domain.Entities;
 using deposito_do_pitty.Domain.Interfaces;
-using deposito_do_pitty.Infrastructure.Persistence;
 using DepositoDoPitty.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 

@@ -43,12 +43,15 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IBudgetService, BudgetService>();
 builder.Services.AddScoped<IAccountsPayableService, AccountsPayableService>();
 
-builder.Services.AddCors(options =>
-{
+builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
+builder.Services.AddScoped<IProductImageService, ProductImageService>();
+
+
+builder.Services.AddCors(options => {
     options.AddPolicy("AllowAll", policy =>
-        policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod());
+      policy.AllowAnyOrigin()
+        .AllowAnyHeader()
+        .AllowAnyMethod());
 });
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
@@ -66,33 +69,30 @@ if (string.IsNullOrWhiteSpace(jwtAudience))
 var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
 
 builder.Services
-    .AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(options =>
-    {
-        options.RequireHttpsMetadata = false;
-        options.SaveToken = true;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = signingKey,
-            ValidateIssuer = true,
-            ValidIssuer = jwtIssuer,
-            ValidateAudience = true,
-            ValidAudience = jwtAudience,
-            ValidateLifetime = true,
-            ClockSkew = TimeSpan.FromMinutes(2)
-        };
-    });
+  .AddAuthentication(options => {
+      options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+      options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+  })
+  .AddJwtBearer(options => {
+      options.RequireHttpsMetadata = false;
+      options.SaveToken = true;
+      options.TokenValidationParameters = new TokenValidationParameters
+      {
+          ValidateIssuerSigningKey = true,
+          IssuerSigningKey = signingKey,
+          ValidateIssuer = true,
+          ValidIssuer = jwtIssuer,
+          ValidateAudience = true,
+          ValidAudience = jwtAudience,
+          ValidateLifetime = true,
+          ClockSkew = TimeSpan.FromMinutes(2)
+      };
+  });
 
 builder.Services.AddAuthorization();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
+builder.Services.AddSwaggerGen(c => {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -108,15 +108,15 @@ builder.Services.AddSwaggerGen(c =>
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
-            new OpenApiSecurityScheme
+      new OpenApiSecurityScheme
             {
-                Reference = new OpenApiReference
+      Reference = new OpenApiReference
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
+      Type = ReferenceType.SecurityScheme,
+      Id = "Bearer"
+    }
             },
-            Array.Empty<string>()
+  Array.Empty<string>()
         }
     });
 });
@@ -136,24 +136,24 @@ var swaggerEnabled = app.Configuration.GetValue<bool>("Swagger:Enabled");
 
 if (app.Environment.IsDevelopment() || swaggerEnabled)
 {
- 
+
     app.MapSwagger().AllowAnonymous();
 
-   
-    app.MapScalarApiReference(options =>
-    {
-        options.WithTitle("Deposito do Pitty API")
-               .WithOpenApiRoutePattern("/swagger/v1/swagger.json")
-               .AddDocument("v1");
-    })
-    .AllowAnonymous();
 
-    
+    app.MapScalarApiReference(options => {
+        options.WithTitle("Deposito do Pitty API")
+          .WithOpenApiRoutePattern("/swagger/v1/swagger.json")
+          .AddDocument("v1");
+    })
+      .AllowAnonymous();
+
+
 }
 
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseStaticFiles();
 
 app.MapControllers();
 
