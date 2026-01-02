@@ -314,18 +314,24 @@ namespace DepositoDoPitty.Infrastructure.Persistence
 
             modelBuilder.Entity<ProductImage>(entity =>
             {
+                entity.ToTable("product_images");
+
                 entity.HasKey(x => x.Id);
 
-                entity.Property(x => x.FileName).IsRequired();
-                entity.Property(x => x.ContentType).IsRequired();
-                entity.Property(x => x.Url).IsRequired();
+                entity.Property(x => x.Id).HasColumnName("id");
+                entity.Property(x => x.ProductId).HasColumnName("product_id");
+                entity.Property(x => x.FileName).HasColumnName("file_name");
+                entity.Property(x => x.Url).HasColumnName("url");
+                entity.Property(x => x.ContentType).HasColumnName("content_type");
+                entity.Property(x => x.Size).HasColumnName("size");
+                entity.Property(x => x.IsPrimary).HasColumnName("is_primary");
+                entity.Property(x => x.SortOrder).HasColumnName("sort_order");
+                entity.Property(x => x.CreatedAt).HasColumnName("created_at");
 
                 entity.HasOne(x => x.Product)
                       .WithMany(p => p.Images)
                       .HasForeignKey(x => x.ProductId)
                       .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasIndex(x => x.ProductId);
             });
 
 

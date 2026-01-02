@@ -50,6 +50,7 @@ builder.Services.AddScoped<IProductImageService, ProductImageService>();
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowAll", policy =>
       policy.AllowAnyOrigin()
+         .WithOrigins("https://depositodopity.connectasys.com.br")
         .AllowAnyHeader()
         .AllowAnyMethod());
 });
@@ -126,7 +127,7 @@ var app = builder.Build();
 
 app.UseRouting();
 
-app.UseCors("AllowAll");
+app.UseCors("Front");
 
 if (app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
