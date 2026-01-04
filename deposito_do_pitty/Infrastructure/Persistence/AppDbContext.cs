@@ -19,6 +19,10 @@ namespace DepositoDoPitty.Infrastructure.Persistence
         public DbSet<AccountsPayable> AccountsPayables { get; set; } = null!;
 
         public DbSet<ProductImage> ProductImages { get; set; } = null!;
+        public DbSet<AccountsReceivable> AccountsReceivable { get; set; } = null!;
+
+        public DbSet<Sale> Sales { get; set; }
+        public DbSet<SaleItem> SaleItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -43,7 +47,7 @@ namespace DepositoDoPitty.Infrastructure.Persistence
                 entity.Property(b => b.Id)
                     .HasColumnName("id");
 
-             
+
 
 
                 entity.Property(b => b.Email)
@@ -58,7 +62,7 @@ namespace DepositoDoPitty.Infrastructure.Persistence
                     .HasColumnName("address")
                     .HasMaxLength(255);
 
-               
+
 
 
                 entity.Property(b => b.Discount)
@@ -71,14 +75,14 @@ namespace DepositoDoPitty.Infrastructure.Persistence
 
 
                 entity.Property(b => b.BudgetNumber)
-      .HasColumnName("budget_number");
+                    .HasColumnName("budget_number");
 
                 entity.Property(b => b.CustomerName)
                     .HasColumnName("customer_name");
 
                 entity.Property(b => b.IssueDate)
-       .HasColumnName("issue_date")
-       .HasColumnType("timestamp with time zone");
+                    .HasColumnName("issue_date")
+                    .HasColumnType("timestamp with time zone");
 
                 entity.Property(b => b.DueDate)
                     .HasColumnName("due_date")
@@ -93,7 +97,7 @@ namespace DepositoDoPitty.Infrastructure.Persistence
                 entity.Property(b => b.UpdatedAt)
                     .HasColumnName("updated_at")
                     .HasColumnType("timestamp with time zone")
-                    .HasDefaultValueSql("NOW()"); 
+                    .HasDefaultValueSql("NOW()");
 
                 entity.HasMany(b => b.Items)
                     .WithOne(i => i.Budget!)
@@ -128,46 +132,46 @@ namespace DepositoDoPitty.Infrastructure.Persistence
                 entity.Property(e => e.Id).HasColumnName("id").ValueGeneratedOnAdd();
 
                 entity.Property(e => e.DocumentNumber)
-                  .HasColumnName("document_number")
-                  .HasMaxLength(20)
-                  .IsRequired();
+                    .HasColumnName("document_number")
+                    .HasMaxLength(20)
+                    .IsRequired();
 
                 entity.Property(e => e.CompanyName)
-                  .HasColumnName("company_name")
-                  .HasMaxLength(150)
-                  .IsRequired();
+                    .HasColumnName("company_name")
+                    .HasMaxLength(150)
+                    .IsRequired();
 
                 entity.Property(e => e.Phone)
-                  .HasColumnName("phone")
-                  .HasMaxLength(20);
+                    .HasColumnName("phone")
+                    .HasMaxLength(20);
 
                 entity.Property(e => e.Email)
-                  .HasColumnName("email")
-                  .HasMaxLength(150);
+                    .HasColumnName("email")
+                    .HasMaxLength(150);
 
                 entity.Property(e => e.Address)
-                  .HasColumnName("address")
-                  .HasMaxLength(255);
+                    .HasColumnName("address")
+                    .HasMaxLength(255);
 
                 entity.Property(e => e.PostalCode)
-                  .HasColumnName("postal_code")
-                  .HasMaxLength(10);
+                    .HasColumnName("postal_code")
+                    .HasMaxLength(10);
 
                 entity.Property(e => e.ContactPerson)
-                  .HasColumnName("contact_person")
-                  .HasMaxLength(100);
+                    .HasColumnName("contact_person")
+                    .HasMaxLength(100);
 
                 entity.Property(e => e.IsActive)
-                  .HasColumnName("is_active")
-                  .HasDefaultValue(true);
+                    .HasColumnName("is_active")
+                    .HasDefaultValue(true);
 
                 entity.Property(e => e.CreatedAt)
-                  .HasColumnName("created_at")
-                  .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                 entity.Property(e => e.UpdatedAt)
-                  .HasColumnName("updated_at")
-                  .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
             });
             ;
 
@@ -178,73 +182,73 @@ namespace DepositoDoPitty.Infrastructure.Persistence
                 entity.HasKey(e => e.Id);
 
                 entity.Property(e => e.Id)
-                  .HasColumnName("id")
-                  .ValueGeneratedOnAdd();
+                    .HasColumnName("id")
+                    .ValueGeneratedOnAdd();
 
                 entity.Property(e => e.DocumentNumber)
-                  .HasColumnName("document_number")
-                  .HasMaxLength(20)
-                  .IsRequired();
+                    .HasColumnName("document_number")
+                    .HasMaxLength(20)
+                    .IsRequired();
 
                 entity.Property(e => e.CompanyName)
-                  .HasColumnName("company_name")
-                  .HasMaxLength(255);
+                    .HasColumnName("company_name")
+                    .HasMaxLength(255);
 
                 entity.Property(e => e.Address)
-                  .HasColumnName("address")
-                  .HasMaxLength(255);
+                    .HasColumnName("address")
+                    .HasMaxLength(255);
 
                 entity.Property(e => e.Number)
-                  .HasColumnName("number")
-                  .HasMaxLength(20);
+                    .HasColumnName("number")
+                    .HasMaxLength(20);
 
                 entity.Property(e => e.Neighborhood)
-                  .HasColumnName("neighborhood")
-                  .HasMaxLength(100);
+                    .HasColumnName("neighborhood")
+                    .HasMaxLength(100);
 
                 entity.Property(e => e.City)
-                  .HasColumnName("city")
-                  .HasMaxLength(100);
+                    .HasColumnName("city")
+                    .HasMaxLength(100);
 
                 entity.Property(e => e.State)
-                  .HasColumnName("state")
-                  .HasMaxLength(2);
+                    .HasColumnName("state")
+                    .HasMaxLength(2);
 
                 entity.Property(e => e.PostalCode)
-                  .HasColumnName("postal_code")
-                  .HasMaxLength(10);
+                    .HasColumnName("postal_code")
+                    .HasMaxLength(10);
 
                 entity.Property(e => e.Phone)
-                  .HasColumnName("phone")
-                  .HasMaxLength(20);
+                    .HasColumnName("phone")
+                    .HasMaxLength(20);
 
                 entity.Property(e => e.RegistrationStatus)
-                  .HasColumnName("registration_status")
-                  .HasMaxLength(50);
+                    .HasColumnName("registration_status")
+                    .HasMaxLength(50);
 
                 entity.Property(e => e.BranchType)
-                  .HasColumnName("branch_type")
-                  .HasMaxLength(50);
+                    .HasColumnName("branch_type")
+                    .HasMaxLength(50);
 
                 entity.Property(e => e.Email)
-                  .HasColumnName("email")
-                  .HasMaxLength(150);
+                    .HasColumnName("email")
+                    .HasMaxLength(150);
 
                 entity.Property(e => e.CreatedAt)
-                  .HasColumnName("created_at")
-                  .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                  .HasConversion(
-                    v => v.ToUniversalTime(),
-                    v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
-                  );
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                    .HasConversion(
+                        v => v.ToUniversalTime(),
+                        v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
+                    );
 
                 entity.Property(e => e.UpdatedAt)
-                  .HasColumnName("updated_at")
-                  .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                  .HasConversion(
-                    v => v.ToUniversalTime(),
-                    v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
-                  );
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                    .HasConversion(
+                        v => v.ToUniversalTime(),
+                        v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
+                    );
 
             });
 
@@ -329,9 +333,9 @@ namespace DepositoDoPitty.Infrastructure.Persistence
                 entity.Property(x => x.CreatedAt).HasColumnName("created_at");
 
                 entity.HasOne(x => x.Product)
-                      .WithMany(p => p.Images)
-                      .HasForeignKey(x => x.ProductId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                    .WithMany(p => p.Images)
+                    .HasForeignKey(x => x.ProductId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
 
@@ -354,10 +358,10 @@ namespace DepositoDoPitty.Infrastructure.Persistence
 
                 entity.Property(x => x.DueDate).IsRequired();
 
-        entity.Property(x => x.Status)
-      .HasConversion<short>()
-      .HasDefaultValue(AccountsPayableStatus.Pending)
-      .IsRequired();
+                entity.Property(x => x.Status)
+                    .HasConversion<short>()
+                    .HasDefaultValue(AccountsPayableStatus.Pending)
+                    .IsRequired();
 
                 entity.Property(x => x.Status)
                     .HasConversion<short>()
@@ -377,6 +381,51 @@ namespace DepositoDoPitty.Infrastructure.Persistence
                 entity.Property(x => x.UpdatedAt)
                     .HasDefaultValueSql("CURRENT_TIMESTAMP");
             });
+
+            modelBuilder.Entity<AccountsReceivable>(e =>
+            {
+                e.ToTable("AccountsReceivable");
+
+                e.HasKey(x => x.Id);
+                e.Property(x => x.Id).HasColumnName("Id");
+
+                e.Property(x => x.Customer).HasColumnName("Customer").HasMaxLength(255).IsRequired();
+                e.Property(x => x.Description).HasColumnName("Description").HasMaxLength(255).IsRequired();
+
+                e.Property(x => x.Amount).HasColumnName("Amount").HasPrecision(18, 2).IsRequired();
+
+                e.Property(x => x.Status)
+                    .HasColumnName("Status")
+                    .HasConversion<short>()
+                    .IsRequired();
+
+                e.Property(x => x.IsOverdue).HasColumnName("IsOverdue").IsRequired();
+                e.Property(x => x.DueDate)
+                    .HasColumnType("timestamp without time zone")
+                    .IsRequired();
+
+                e.Property(x => x.ReceiptDate)
+                    .HasColumnType("timestamp without time zone");
+
+                e.Property(x => x.CreatedAt)
+                    .HasColumnType("timestamp without time zone")
+                    .IsRequired();
+
+                e.Property(x => x.UpdatedAt)
+                    .HasColumnType("timestamp without time zone");
+
+
+            });
+
         }
+
+
+
     }
+
+
 }
+
+
+
+

@@ -61,6 +61,8 @@ builder.Services.AddScoped<IAccountsPayableService, AccountsPayableService>();
 
 builder.Services.AddScoped<IProductImageService, ProductImageService>();
 
+builder.Services.AddScoped<ISalesService, SalesService>();
+builder.Services.AddScoped<ISaleRepository, SaleRepository>();
 // =========================
 // CORS
 // =========================
