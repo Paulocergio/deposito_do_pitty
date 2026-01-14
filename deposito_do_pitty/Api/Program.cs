@@ -71,14 +71,12 @@ builder.Services.AddCors(options =>
     options.AddPolicy("Front", policy =>
     {
         policy
-            .WithOrigins(
-                "https://depositodopity.connectasys.com.br", // FRONT (produção)
-                "http://192.168.1.87:8082"                  // FRONT (LAN / container)
-            )
+            .WithOrigins("http://192.168.1.87:8082")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
 });
+
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var jwtKey = jwtSection["Key"];
