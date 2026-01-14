@@ -25,7 +25,7 @@ var builder = WebApplication.CreateBuilder(args);
 // =========================
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (string.IsNullOrWhiteSpace(connectionString))
-    throw new InvalidOperationException("ConnectionStrings:DefaultConnection ausente nas configurações.");
+    throw new InvalidOperationException("ConnectionStrings:DefaultConnection ausente nas configuraÃ§Ãµes.");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
@@ -72,27 +72,25 @@ builder.Services.AddCors(options =>
     {
         policy
             .WithOrigins(
-                "https://depositodopity.connectasys.com.br" // FRONT
+                "https://depositodopity.connectasys.com.br", // FRONT (produÃ§Ã£o)
+                "http://192.168.1.87:8082"                  // FRONT (LAN / container)
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
 });
 
-// =========================
-// JWT
-// =========================
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var jwtKey = jwtSection["Key"];
 var jwtIssuer = jwtSection["Issuer"];
 var jwtAudience = jwtSection["Audience"];
 
 if (string.IsNullOrWhiteSpace(jwtKey))
-    throw new InvalidOperationException("Jwt:Key ausente nas configurações.");
+    throw new InvalidOperationException("Jwt:Key ausente nas configuraÃ§Ãµes.");
 if (string.IsNullOrWhiteSpace(jwtIssuer))
-    throw new InvalidOperationException("Jwt:Issuer ausente nas configurações.");
+    throw new InvalidOperationException("Jwt:Issuer ausente nas configuraÃ§Ãµes.");
 if (string.IsNullOrWhiteSpace(jwtAudience))
-    throw new InvalidOperationException("Jwt:Audience ausente nas configurações.");
+    throw new InvalidOperationException("Jwt:Audience ausente nas configuraÃ§Ãµes.");
 
 var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
 
@@ -120,10 +118,6 @@ builder.Services
     });
 
 builder.Services.AddAuthorization();
-
-// =========================
-// Swagger / OpenAPI
-// =========================
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -156,29 +150,10 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
-
-// =========================
-// Pipeline (ORDEM CERTA)
-// =========================
-
-// Se você estiver atrás de Nginx Proxy Manager/Cloudflare e quiser reconhecer HTTPS real,
-// descomente e adicione o using Microsoft.AspNetCore.HttpOverrides;
-// app.UseForwardedHeaders(new ForwardedHeadersOptions
-// {
-//     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-// });
-
-// Serve arquivos estáticos do wwwroot (uploads)
 app.UseStaticFiles();
 
 app.UseRouting();
-
-// CORS tem que vir antes de Auth/Authorization para preflight funcionar
 app.UseCors("Front");
-
-// Se você quiser forçar HTTPS dentro do ASP.NET, descomente.
-// Se o SSL termina no NPM/Cloudflare e o container recebe HTTP, pode deixar comentado.
-// app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
