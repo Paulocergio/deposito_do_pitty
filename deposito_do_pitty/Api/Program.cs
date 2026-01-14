@@ -71,12 +71,14 @@ builder.Services.AddCors(options =>
     options.AddPolicy("Front", policy =>
     {
         policy
-            .WithOrigins("http://192.168.1.87:8082")
+            .WithOrigins(
+                "http://192.168.1.87:8082",
+                "https://depositodopity.connectasys.com.br"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
 });
-
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var jwtKey = jwtSection["Key"];
@@ -169,6 +171,6 @@ if (app.Environment.IsDevelopment() || swaggerEnabled)
     }).AllowAnonymous();
 }
 
-app.MapControllers();
+app.MapControllers().RequireCors("Front");
 
 app.Run();
